@@ -24,7 +24,7 @@ class Administradores(models.Model):
         db_table = 'Administradores'
 
 
-class Aosescolares(models.Model):
+class Añosescolares(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True)  # Field name made lowercase.
     añoescolar = models.CharField(db_column='A�oEscolar', max_length=1, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
     tipoeducacionid = models.IntegerField(db_column='TipoEducacionId', blank=True, null=True)  # Field name made lowercase.
@@ -32,10 +32,10 @@ class Aosescolares(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'A�osEscolares'
+        db_table = 'AñosEscolares'
 
 
-class Aosescolaresdocentes(models.Model):
+class Añosescolaresdocentes(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True)  # Field name made lowercase.
     docenteid = models.IntegerField(db_column='DocenteId', blank=True, null=True)  # Field name made lowercase.
     añoescolarid = models.IntegerField(db_column='A�oEscolarId', blank=True, null=True)  # Field name made lowercase.
@@ -43,7 +43,7 @@ class Aosescolaresdocentes(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'A�osEscolaresDocentes'
+        db_table = 'AñosEscolaresDocentes'
 
 
 class Barrios(models.Model):
@@ -153,7 +153,7 @@ class Contactostutores(models.Model):
 class Cuentasadministradores(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True)  # Field name made lowercase.
     usuario = models.CharField(db_column='Usuario', max_length=1, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    contraseña = models.CharField(db_column='Contrase�a', max_length=1, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+    contraseña = models.CharField(db_column='Contraseña', max_length=1, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
     estado = models.BooleanField(db_column='Estado', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
@@ -164,7 +164,7 @@ class Cuentasadministradores(models.Model):
 class Cuentasinvestigadores(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True)  # Field name made lowercase.
     usuario = models.CharField(db_column='Usuario', max_length=1, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    contraseña = models.CharField(db_column='Contrase�a', max_length=1, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+    contraseña = models.CharField(db_column='Contraseña', max_length=1, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
     estado = models.BooleanField(db_column='Estado', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:

@@ -86,10 +86,9 @@ DATABASES = {
         'NAME': 'CensaData',      
         'HOST': 'localhost\\SQLEXPRESS',             
         'PORT': '1433',               
-        'USER': 'Josiel',
-        'PASSWORD': '1234',
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server', 
+            'trusted_connection': 'yes',
         },
     }
 }
