@@ -84,8 +84,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',  
         'NAME': 'CensaData',      
-        'HOST': 'localhost\\SQLEXPRESS',             
-        'PORT': '1433',               
+        'HOST': '(localdb)\\Local',             
+        'PORT': '',               
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server', 
             'trusted_connection': 'yes',
