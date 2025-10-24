@@ -84,7 +84,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',  
         'NAME': 'CensaData',      
-        'HOST': '(localdb)\\Local',             
+        'HOST': 'localhost\\SQLEXPRESS',             
         'PORT': '',               
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server', 
@@ -139,7 +139,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES':[
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 }
 
 from datetime import timedelta
@@ -149,7 +153,6 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),    # Duración del token de refresco
     'ROTATE_REFRESH_TOKENS': True,
     'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY, # Reutiliza la clave secreta de Django
-    'USER_ID_FIELD': 'IdInvestigador', 
+    'SIGNING_KEY': SECRET_KEY, # Reutiliza la clave secreta de Django 
     'USER_ID_CLAIM': 'userid',
 }
