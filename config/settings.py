@@ -46,7 +46,7 @@ INSTALLED_APPS = [
 ]
 
 # Custom User Model
-AUTH_USER_MODEL = 'CensaData.Cuentasinvestigadores'  
+AUTH_USER_MODEL = 'CensaData.CuentasInvestigadores'  
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

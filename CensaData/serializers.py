@@ -76,6 +76,24 @@ class CuentasinvestigadoresSerializer(serializers.ModelSerializer):
         model = Cuentasinvestigadores
         fields = ('id','usuario','estado')
         read_only_fields = ('id')
+        
+# Serializador para crear un nuevo Cliente (con contraseña)
+class CuentaInvestigadorCreationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cuentasinvestigadores
+        # Campos que el usuario enviará
+        fields = ('usuario', 'password')
+        # La contraseña solo se puede escribir
+        extra_kwargs = {'password': {'write_only': True}}
+
+    # Método para guardar el usuario con contraseña encriptada
+    def create(self, validated_data):
+        # Usamos el método create_user que definimos en el Manager
+        user = Cuentasinvestigadores.objects.create_user(
+            usuario=validated_data['usuario'],
+            password=validated_data['password'],    
+        )
+        return user
 
 class DepartamentosSerializer(serializers.ModelSerializer):
     class Meta:
