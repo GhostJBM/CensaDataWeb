@@ -35,7 +35,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
-    'django.contrib.contenttypes',  # ← este debe estar
+    'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'CensaData',                       
     'rest_framework_simplejwt',   
 ]
+
+# Custom User Model
+AUTH_USER_MODEL = 'CensaData.Cuentasinvestigadores'  
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -92,7 +95,6 @@ DATABASES = {
         },
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

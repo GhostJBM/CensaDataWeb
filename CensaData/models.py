@@ -6,8 +6,31 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.utils.translation import gettext_lazy as _
 
 
+## Modelos de autentificacion
+class InvestigadorManager(BaseUserManager):
+    def create_user(self, usuario, password=None, **extra_fields):
+        """Create and save a regular user with the given usuario and password."""
+        if not usuario:
+            raise ValueError('User is required')
+        user = self.model(usuario=usuario, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+class  AdministradorManager(BaseUserManager):
+    def create_user(self, user, password, **extra_fields):
+        if not user:
+            raise ValueError('User is required')
+        Administrador = self.model(usuario=self(user), **extra_fields)
+        Administrador.set_password(password)
+        Administrador.save(using=self._db)
+        return 
+
+## Modelos de la base de datos
 class Administradores(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True)  # Field name made lowercase.
     primernombre = models.CharField(db_column='PrimerNombre', max_length=1, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
@@ -152,7 +175,7 @@ class Contactostutores(models.Model):
 
 class Cuentasadministradores(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True)  # Field name made lowercase.
-    usuario = models.CharField(db_column='Usuario', max_length=1, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+    usuario = models.CharField(db_column='Usuario', max_length=150, db_collation='SQL_Latin1_General_CP1_CI_AS',  blank=False, null=False)  # Field name made lowercase.
     contraseña = models.CharField(db_column='Contraseña', max_length=1, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
     estado = models.BooleanField(db_column='Estado', blank=True, null=True)  # Field name made lowercase.
 
@@ -161,15 +184,39 @@ class Cuentasadministradores(models.Model):
         db_table = 'CuentasAdministradores'
 
 
-class Cuentasinvestigadores(models.Model):
+class Cuentasinvestigadores(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(db_column='Id', primary_key=True)  # Field name made lowercase.
-    usuario = models.CharField(db_column='Usuario', max_length=1, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+    usuario = models.CharField(db_column='Usuario', max_length=150, db_collation='SQL_Latin1_General_CP1_CI_AS', unique=True, blank=False, null=False)  # Field name made lowercase.
     contraseña = models.CharField(db_column='Contraseña', max_length=1, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
     estado = models.BooleanField(db_column='Estado', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
         db_table = 'CuentasInvestigadores'
+    
+    prg_validacion = models.CharField(max_length=128, null=False)
+    rp_validacion = models.CharField(max_length=128, null=False)
+    # Si hay un campo numérico de estado distinto al booleano original, mantener nombre diferente
+    estado_code = models.SmallIntegerField(null=False, default=1) # Asumimos un default
+
+    # Campos requeridos por AbstractBaseUser / PermissionsMixin
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
+    # Definición de campos para autenticación
+    USERNAME_FIELD = 'usuario'
+    REQUIRED_FIELDS = []
+
+    objects = InvestigadorManager()
+
+    def __str__(self):
+        return str(self.usuario)
+
+    @property
+    def is_anonymous(self):
+        """Required by some parts of Django auth: anonymous users have True, normal users False."""
+        return False
+
 
 
 class Departamentos(models.Model):
@@ -313,7 +360,7 @@ class Investigadores(models.Model):
     class Meta:
         managed = False
         db_table = 'Investigadores'
-
+   
 
 class Municipios(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True)  # Field name made lowercase.

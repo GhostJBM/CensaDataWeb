@@ -8,10 +8,9 @@ class AdministradoresViewSet(viewsets.ModelViewSet):
     queryset = Administradores.objects.all()
     serializer_class = AdministradoresSerializer
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAdminUser]
     
 
 class InvestigadoresViewSet(viewsets.ModelViewSet):
     queryset = Investigadores.objects.all()
     serializer_class = InvestigadoresSerializer
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
