@@ -42,7 +42,8 @@ INSTALLED_APPS = [
 
     'rest_framework',              
     'CensaData',                       
-    'rest_framework_simplejwt',   
+    'rest_framework_simplejwt', 
+    'drf_yasg',  
 ]
 
 # Custom User Model
@@ -157,4 +158,15 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY, # Reutiliza la clave secreta de Django 
     'USER_ID_CLAIM': 'userid',
+}
+
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,  # desactiva autenticación por cookie
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'Formato: Bearer <tu_token_jwt>'},
+    },
 }
