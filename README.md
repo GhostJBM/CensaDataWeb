@@ -1,2 +1,31 @@
 # CensaDataWeb
-Aplicacion web de estudiantes de la UNAN Managua segundo año sistemas
+Aplicacion web como proyecto integrador de estudiantes de segundo año de Ingeniería en Sistemas destinada a la gestión de censos de las diferentes instituciones del país (INIDE y MINED por ahora).
+
+## Tecnologías usadas.
+- Python 3.12.6
+- Django Rest Framework.
+- SQL Server Management Studio (SQL Server).
+- API Dog.
+- Visual studio code.
+- Github.
+
+## Instalación.
+### Requerimientos.
+   - Python 3.12.6.
+   - Django 4+.
+   - SQL Server.
+   - pip / virtual enviroment (.venv).
+### Setup.
+   1. Clonar el repositorio github.
+   2. Correr el script DML Y DDL de la base de datos alojado en ---
+   4. Generar el virtual enviroment (.venv) si no está generado.
+   3. Instalar las librerías necesarias.
+   ``
+     pip install django
+   ``
+   4. Configurar la conexión con la base de datos en el config del framework.
+   5. Correr el servidor local.
+   ``
+     python manage.py runserver
+   ``
+   6. Probar los endpoints.
