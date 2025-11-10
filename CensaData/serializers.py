@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Añosescolares, Añosescolaresdocentes, Administradores, Barrios,Casas,Centroseducativos,Centroseducativosdocentes,Contactoscentroseducativos,Contactosdirectores,Contactosdocentes,Contactosinvestigadores,Contactostutores,Cuentasadministradores,Cuentasinvestigadores, Departamentos,Directores,Docentes,Docentesestudiantes,Empadronados,Empleos,Encuestas,Encuestasinidetrabajadores,Encuestasminedescolares,Estadosciviles,Estudiantes,Investigadores,Municipios,Personas,Relacionesparentescos,Tiposdeeducaciones,Tiposdeeducacionesdocentes,Tutores
+from .models import Añosescolares, Añosescolaresdocentes, Administradores, Barrios,Casas,Centroseducativos,Centroseducativosdocentes,Contactoscentroseducativos,Contactosdirectores,Contactosdocentes,Contactosinvestigadores,Contactostutores,Cuentasadministradores,cuentasinvestigadoresadmin, Departamentos,Directores,Docentes,Docentesestudiantes,Empadronados,Empleos,Encuestas,Encuestasinidetrabajadores,Encuestasminedescolares,Estadosciviles,Estudiantes,Investigadores,Municipios,Personas,Relacionesparentescos,Tiposdeeducaciones,Tiposdeeducacionesdocentes,Tutores
 
 
 ## serializer para las tablas
@@ -17,8 +17,7 @@ class AñosescolaresdocentesSerializer(serializers.ModelSerializer):
 class AdministradoresSerializer(serializers.ModelSerializer):
     class Meta:
         model = Administradores
-        fields = ('id', 'primernombre','segundonombre','primerapellido', 'segundoapellido','edad','sexo','estado','cuentaid')
-        read_only_fields = ('id', 'cuentaid')
+        fields = '__all__'
         
 class BarriosSerializer(serializers.ModelSerializer):
     class Meta:
@@ -73,25 +72,26 @@ class CuentasadministradoresSerializer(serializers.ModelSerializer):
         
 class CuentasinvestigadoresSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Cuentasinvestigadores
+        model = cuentasinvestigadoresadmin
         fields = ('id','usuario','estado')
         read_only_fields = ('id')
         
 # Serializador para crear un nuevo Cliente (con contraseña)
 class CuentaInvestigadorCreationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Cuentasinvestigadores
+        model = cuentasinvestigadoresadmin
         # Campos que el usuario enviará
-        fields = ('usuario', 'password')
+        fields = ('usuario', 'password', "Role")
         # La contraseña solo se puede escribir
         extra_kwargs = {'password': {'write_only': True}}
 
     # Método para guardar el usuario con contraseña encriptada
     def create(self, validated_data):
         # Usamos el método create_user que definimos en el Manager
-        user = Cuentasinvestigadores.objects.create_user(
+        user = cuentasinvestigadoresadmin.objects.create_user(
             usuario=validated_data['usuario'],
-            password=validated_data['password'],    
+            password=validated_data['password'],
+            Role=validated_data["Role"]    
         )
         return user
 
@@ -153,8 +153,7 @@ class EstudiantesSerializer(serializers.ModelSerializer):
 class InvestigadoresSerializer(serializers.ModelSerializer):    
     class Meta:
         model = Investigadores
-        fields = ('id','primernombre','segundonombre', 'primerapellido','segundoapellido','edad','sexo','estado','cuentaid')
-        read_only_fields = ('id','cuentaid')
+        fields = '__all__'
 
 class MunicipiosSerializer(serializers.ModelSerializer):
     class Meta:

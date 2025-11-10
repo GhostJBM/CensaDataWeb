@@ -3,27 +3,28 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import *
 from .serializers import *
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from .permissions import IsAdminOrReadOnly
 
 class AdministradoresViewSet(viewsets.ModelViewSet):
     queryset = Administradores.objects.all()
     serializer_class = AdministradoresSerializer
     authentication_classes = [JWTAuthentication]
-    
+    permission_classes = [IsAdminOrReadOnly]
 
 class InvestigadoresViewSet(viewsets.ModelViewSet):
     queryset = Investigadores.objects.all()
     serializer_class = InvestigadoresSerializer
     authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdminOrReadOnly]
     
 class CuentasInvestigadoresViewSet(viewsets.ModelViewSet):
-    queryset = Cuentasinvestigadores.objects.all()
-    
+    queryset = cuentasinvestigadoresadmin.objects.all()
     serializer_class = CuentasinvestigadoresSerializer
     
     def get_serializer_class(self):
         if self.request.method == "POST":
             return CuentaInvestigadorCreationSerializer
-        return Cuentasinvestigadores
+        return cuentasinvestigadoresadmin
     
     def get_permissions(self):
         if self.action == 'create': # 'create' es el método POST
@@ -36,17 +37,20 @@ class añosEscolaresViewSet(viewsets.ModelViewSet):
     queryset = Añosescolares.objects.all()
     serializer_class = AñosescolaresSerializer
     authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdminOrReadOnly]
     
 class añosEscolaresDocentesViewSet(viewsets.ModelViewSet):
     queryset = Añosescolaresdocentes.objects.all()
     serializer_class = AñosescolaresdocentesSerializer
     authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdminOrReadOnly]
     
 class BarriosViewSet(viewsets.ModelViewSet):
     queryset = Barrios.objects.all()
     serializer_class = BarriosSerializer
     authentication_classes = [JWTAuthentication]
-
+    permission_classes = [IsAdminOrReadOnly]
+    
 class CasasViewSet(viewsets.ModelViewSet):
     queryset = Casas.objects.all()
     serializer_class = CasasSerializer
@@ -87,7 +91,8 @@ class DepartamentosViewSet(viewsets.ModelViewSet):
     queryset = Departamentos.objects.all()
     serializer_class = DepartamentosSerializer
     authentication_classes = [JWTAuthentication]
-    
+    permission_classes = [IsAdminOrReadOnly]
+        
 class DirectoresViewSet(viewsets.ModelViewSet):
     queryset = Directores.objects.all()
     serializer_class = DirectoresSerializer
@@ -112,6 +117,7 @@ class EmpleosViewSet(viewsets.ModelViewSet):
     queryset = Empleos.objects.all()
     serializer_class = EmpleosSerializer
     authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdminOrReadOnly]
     
 class EncuestasViewSet(viewsets.ModelViewSet):
     queryset = Encuestas.objects.all()
@@ -132,6 +138,7 @@ class EstadosCivilesViewSet(viewsets.ModelViewSet):
     queryset = Estadosciviles.objects.all()
     serializer_class = EstadoscivilesSerializer
     authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdminOrReadOnly]
     
 class EstudiantesViewSet(viewsets.ModelViewSet):
     queryset = Estudiantes.objects.all()
@@ -143,7 +150,7 @@ class MunicipiosViewSet(viewsets.ModelViewSet):
     queryset = Municipios.objects.all()
     serializer_class = MunicipiosSerializer
     authentication_classes = [JWTAuthentication]
-    
+    permission_classes = [IsAdminOrReadOnly]
 
 class PersonasViewSet(viewsets.ModelViewSet):
     queryset = Personas.objects.all()
@@ -154,6 +161,7 @@ class RelacionesParentescosViewSet(viewsets.ModelViewSet):
     queryset = Relacionesparentescos.objects.all()
     serializer_class = RelacionesparentescosSerializer
     authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdminOrReadOnly]
     
 class TiposDeEducacionesViewSet(viewsets.ModelViewSet):
     queryset = Tiposdeeducaciones.objects.all()

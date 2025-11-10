@@ -162,7 +162,7 @@ class Cuentasadministradores(models.Model):
         managed = False
         db_table = 'CuentasAdministradores'
         
-class CustomInvestigadorManager(BaseUserManager):
+class CustomInvestigadorAdminManager(BaseUserManager):
     def create_user(self, usuario, password=None, **extra_fields):
         if not usuario:
             raise ValueError('El nombre de usuario es obligatorio')
@@ -176,7 +176,7 @@ class CustomInvestigadorManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(usuario, password, **extra_fields)
 
-class Cuentasinvestigadores(AbstractBaseUser, PermissionsMixin):
+class cuentasinvestigadoresadmin(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(db_column='Id', primary_key=True)  # Field name made lowercase.
     usuario = models.CharField(db_column='Usuario', max_length=30, db_collation='SQL_Latin1_General_CP1_CI_AS', unique=True, blank=False, null=False)  # Field name made lowercase.
     password = models.CharField(db_column='password', max_length=128, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
@@ -185,14 +185,15 @@ class Cuentasinvestigadores(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     last_login = models.DateTimeField(null=True, blank=True)
+    Role = models.CharField(max_length=20 )
 
-    objects = CustomInvestigadorManager()
+    objects = CustomInvestigadorAdminManager()
     USERNAME_FIELD = 'usuario'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['Role']
     
     class Meta:
         managed = False
-        db_table = 'CuentasInvestigadores'
+        db_table = 'CuentasInvestigadoresAdmin'
     def __str__(self):
         return self.usuario
 
