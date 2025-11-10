@@ -19,6 +19,9 @@ Aplicacion web como proyecto integrador de estudiantes de segundo año de Ingeni
    1. Clonar el repositorio github.
    2. Correr el script DML Y DDL de la base de datos alojado en ---
    4. Generar el virtual enviroment (.venv) si no está generado.
+    ``
+      python -m venv .venv
+    ``
    3. Instalar las librerías necesarias.
    ``
      pip install django==5.2.7
