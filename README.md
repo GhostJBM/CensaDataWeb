@@ -44,23 +44,22 @@ Aplicacion web como proyecto integrador de estudiantes de segundo año de Ingeni
 ## Estructura del proyecto.
 ```plaintext
 CensaDataWeb/
-├── .venv/                  # Entorno virtual (no se sube al repo)
-├── CensaData/                   # Carpeta opcional para tus apps
-│   ├── usuarios/           # Ejemplo de una app
-│   │   ├── migrations/     # Migraciones de la base de datos
-│   │   ├── __init__.py
-│   │   ├── admin.py
-│   │   ├── apps.py
-│   │   ├── models.py       # Modelos de datos
-│   │   ├── permissions.py 
-│   │   ├── serializers.py  # Serializadores para DRF
-│   │   ├── test.py
-│   │   ├── urls.py         # Rutas específicas de la app
-│   │   └── views.py        # Vistas de la app 
+├── .venv/                 
+├── CensaData/                 
+│   ├── migrations/         # Migraciones de la base de datos
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py           # Modelos de datos
+│   ├── permissions.py 
+│   ├── serializers.py      # Serializadores para DRF
+│   ├── test.py
+│   ├── urls.py             # Rutas específicas de la app
+│   └── views.py            # Vistas de la app 
 ├── DB/                     # Carpeta opcional para scripts SQL
 │   ├── CensaDataDDL.sql
 │   └── CensaDataDML.sql
-├── config/            # Carpeta principal del proyecto Django
+├── config/                 # Carpeta principal del proyecto Django
 │   ├── __init__.py
 │   ├── asgi.py             # Configuración para ASGI
 │   ├── settings.py         # Configuración del proyecto (incluye DB)
