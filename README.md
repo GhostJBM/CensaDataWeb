@@ -44,7 +44,8 @@ Aplicacion web como proyecto integrador de estudiantes de segundo año de Ingeni
       5.5 nos conectamos al servidor de BD con el UsuarioAdministrador en caso de querer acceso total o con el UsuarioInvestigador en caso de querer acceso limitado
       5.6 Cambiamos la contraseña del usuario como se nos indica en el Managaments Studio
       5.7 Cambios el usuario y la contraseña en CensaData/config/settings.py
-         DATABASES = {
+```plaintext
+       DATABASES = {
             'default': {
                'ENGINE': 'mssql',  
                'NAME': 'CensaData',      
@@ -54,10 +55,11 @@ Aplicacion web como proyecto integrador de estudiantes de segundo año de Ingeni
                'PORT': '',               
                'OPTIONS': {
                   'driver': 'ODBC Driver 17 for SQL Server', # driver de sql server
-            },
-    }
-}
-   6. Correr el servidor local.
+               },
+            }
+      }
+```
+   7. Correr el servidor local.
 
    ```
    python manage.py runserver
