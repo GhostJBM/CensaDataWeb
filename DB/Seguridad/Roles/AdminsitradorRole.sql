@@ -1,0 +1,7 @@
+USE CensaData
+GO
+
+CREATE ROLE Administrador
+GO
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON SCHEMA::dbo TO administrador

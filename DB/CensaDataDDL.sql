@@ -2,12 +2,6 @@ USE master
 GO
 
 CREATE DATABASE [CensaData]
- CONTAINMENT = NONE
- ON  PRIMARY 
-( NAME = N'CensaData_Data', FILENAME = N'C:\DB2025\CensaData_data.mdf' , SIZE = 8192KB , MAXSIZE = 102400KB , FILEGROWTH = 2048KB )
- LOG ON 
-( NAME = N'CensaData_Log', FILENAME = N'C:\DB2025\CensaData_Log.ldf' , SIZE = 5120KB , MAXSIZE = 102400KB , FILEGROWTH = 2048KB )
- WITH CATALOG_COLLATION = DATABASE_DEFAULT, LEDGER = OFF
 GO
 USE CensaData
 GO
@@ -52,7 +46,7 @@ CREATE TABLE [dbo].[Barrios] (
 
 CREATE TABLE [dbo].[Casas] (
     [Id] int IDENTITY(1,1),
-    [NumCasa] int NOT NULL,
+    [NumCasa] int NOT NULL UNIQUE,
     [CantidadHombres] int NOT NULL,
     [CantidadMujeres] int NOT  NULL,
     [TotalPersonas] AS [CantidadHombres]+[CantidadMujeres],
@@ -289,4 +283,3 @@ CREATE TABLE [dbo].[Tutores] (
     [Estado] bit default 1,
     CONSTRAINT [PK_Tutores] PRIMARY KEY ([Id])
 );
-
