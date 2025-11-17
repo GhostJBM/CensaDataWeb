@@ -37,13 +37,13 @@ Aplicacion web como proyecto integrador de estudiantes de segundo año de Ingeni
      pip install mssql-django==1.6
    
    5. Configurar la conexión con la base de datos en el config del framework.
-      - ejecutamos el archivo loginMaster.sql en DB/Seguridad/Logins
-      - Ejecutamos los archivo en DB/Seguridad/Roles AdministradorRole.sql y InvestigadorRole.sql
-      - Ejecutamos el archivo Usuarios.sql en DB/Seguridad/logins
-      - ejectuamos todos los archivos en DB/Triggers y procedimientos almacenados
-      - nos conectamos al servidor de BD con el UsuarioAdministrador en caso de querer acceso total o con el UsuarioInvestigador en caso de querer acceso limitado
-      - Cambiamos la contraseña del usuario como se nos indica en el Managaments Studio
-      - Cambios el usuario y la contraseña en CensaData/config/settings.py
+      - 5.1 Ejecutamos el archivo loginMaster.sql en DB/Seguridad/Logins
+      - 5.2 Ejecutamos los archivo en DB/Seguridad/Roles AdministradorRole.sql y InvestigadorRole.sql
+      - 5.3 Ejecutamos el archivo Usuarios.sql en DB/Seguridad/logins
+      - 5.4 Ejectuamos todos los archivos en DB/Triggers y procedimientos almacenados 
+      - 5.5 Nos conectamos al servidor de BD con el UsuarioAdministrador en caso de querer acceso total o con el UsuarioInvestigador en caso de querer acceso limitado
+      - 5.6 Cambiamos la contraseña del usuario como se nos indica en el Managaments Studio
+      - 5.7 Cambios el usuario y la contraseña en CensaData/config/settings.py
 ```plaintext
        DATABASES = {
             'default': {
