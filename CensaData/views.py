@@ -21,6 +21,7 @@ class CuentasInvestigadoresViewSet(viewsets.ModelViewSet):
     queryset = cuentasinvestigadoresadmin.objects.all()
     serializer_class = CuentasinvestigadoresSerializer
     
+    
     def get_serializer_class(self):
         if self.request.method == "POST":
             return CuentaInvestigadorCreationSerializer
@@ -30,7 +31,9 @@ class CuentasInvestigadoresViewSet(viewsets.ModelViewSet):
         if self.action == 'create': # 'create' es el método POST
             permission_classes = [AllowAny]
         else:
+            
             permission_classes = [IsAuthenticated]
+            
         return [permission() for permission in permission_classes]
     
 class añosEscolaresViewSet(viewsets.ModelViewSet):
