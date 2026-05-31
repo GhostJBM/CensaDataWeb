@@ -58,6 +58,9 @@ Aplicacion web como proyecto integrador de estudiantes de segundo año de Ingeni
                },
             }
       }
+
+      6.1 Crear las migraciones a la bd
+      python manage.py migrate
 ```
    7. Correr el servidor local.
 

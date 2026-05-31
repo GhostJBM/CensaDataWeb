@@ -6,5 +6,5 @@ class IsAdminOrReadOnly(BasePermission):
             return True
         return request.user.is_authenticated and getattr (request.user, "Role","")=="Administrador"
         
-        
+            
         
