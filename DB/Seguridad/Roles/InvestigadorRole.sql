@@ -9,8 +9,8 @@ USE CensaData
 GO
 -- todos los ro4les de Investigador
 grant SELECT ON Administradores to Investigador
-grant SELECT ON AñosEscolares to Investigador
-grant SELECT, INSERT, UPDATE, DELETE ON AñosEscolaresDocentes to Investigador
+grant SELECT ON AÃ±osEscolares to Investigador
+grant SELECT, INSERT, UPDATE, DELETE ON AÃ±osEscolaresDocentes to Investigador
 grant SELECT ON Barrios to Investigador
 grant SELECT, INSERT, UPDATE, DELETE ON Casas to Investigador
 grant SELECT ON CentrosEducativos to Investigador

@@ -1,12 +1,14 @@
 USE CensaData
 GO
 
+--Los proedimientos almacenados quedan obsoletos por la implementacion de services layer
+
 --Procedimiento almacenado creado para las estadisticas de los barrios, se usa en el backend
 CREATE OR ALTER PROCEDURE SP_EstadisticasGruposPorBarrio @BarrioId INT
 AS
 BEGIN
 
-SELECT COUNT(CASE WHEN p.Edad BETWEEN 0 AND 12 THEN 1 END) AS niños,
+SELECT COUNT(CASE WHEN p.Edad BETWEEN 0 AND 12 THEN 1 END) AS niï¿½os,
 	   COUNT(CASE WHEN p.Edad BETWEEN 13 AND 17 THEN 1 END) AS Jovenes,
 	   COUNT(CASE WHEN p.Edad BETWEEN 18 AND 59 THEN 1 END) AS adultos,
 	   COUNT(CASE WHEN p.Edad > 60 THEN 1 END) AS [Adultos mayores],
@@ -33,7 +35,7 @@ BEGIN
      SUM(CASE WHEN ec.EstadoCivil = 'Soltero' THEN 1 ELSE 0 END ) AS Soltero,  
      SUM(CASE WHEN ec.EstadoCivil = 'Viudo' THEN 1 ELSE 0 END ) AS Viudo,  
      d.Nombre AS Departamento,  
-     SUM(CASE WHEN ec.EstadoCivil = 'Unión Libre' THEN 1 ELSE 0 END ) AS [Union libre]  
+     SUM(CASE WHEN ec.EstadoCivil = 'Uniï¿½n Libre' THEN 1 ELSE 0 END ) AS [Union libre]  
  FROM Empadronados AS e  
  INNER JOIN EstadosCiviles AS ec ON   
  E.EstadoCivilId = ec.Id  
@@ -109,7 +111,7 @@ BEGIN
 		   I.Edad,
 		   I.Sexo,
 		   C.Usuario,
-		   C.Contraseña,
+		   C.Contraseï¿½a,
 		   con.Contacto
 	FROM Investigadores AS i
 	INNER JOIN CuentasInvestigadores AS c

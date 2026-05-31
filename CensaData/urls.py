@@ -1,8 +1,9 @@
-from django.urls import path
+from django.urls import path, include
 from rest_framework import routers
 from CensaData.views import *
 
 router = routers.DefaultRouter()
+
 router.register(r'investigadores', InvestigadoresViewSet)
 router.register(r'administradores', AdministradoresViewSet)
 router.register(r'cuentasInvestigadores', CuentasInvestigadoresViewSet)
@@ -22,7 +23,9 @@ router.register(r'docentes', DocentesViewSet)
 router.register(r'docentesEstudiantes', DocentesEstudiantesViewSet)
 router.register(r'empadronados', EmpadronadosViewSet)
 router.register(r'empleos', EmpleosViewSet)
-router.register(r'encuestas', EncuestasViewSet)
+router.register(r'Censos',CensosViewSet)
+router.register(r'Infraestructuras',InfraestructurasViewSet)
+router.register(r'NivelesEducativos',NivelesEduactivosViewSet)
 router.register(r'encuestasIniDeTrabajadores', EncuestasInideTrabajadoresViewSet)
 router.register(r'encuestasMineDescoclares', EncuestasMinedEscolaresViewSet)
 router.register(r'estadosCiviles', EstadosCivilesViewSet)
@@ -34,4 +37,8 @@ router.register(r'tiposDeEducaciones', TiposDeEducacionesViewSet)
 router.register(r'tiposDeEducacionesDocentes', TiposDeEducacionesDocentesViewSet)
 router.register(r'tutores', TutoresViewSet)
 
-urlpatterns = router.urls
+
+
+urlpatterns = [path('',include(router.urls)), path('censo/', CensoCompletoINIDETrabajadoresViewSet.as_view())]
+
+urlpatterns = [path('',include(router.urls)), path('EncuestaCompleta/', EncuestaINIDETrabajadosCompletaViewSet.as_view())]

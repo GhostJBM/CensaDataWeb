@@ -94,6 +94,8 @@ DATABASES = {
         'PORT': '',               
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server', 
+            'charset':'utf8mb4',
+            'use_unicode':True,
         },
     }
 }
@@ -141,10 +143,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
+    ],
     'DEFAULT_PERMISSION_CLASSES':[
         'rest_framework.permissions.IsAuthenticated',
     ],
@@ -159,6 +160,7 @@ SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY, # Reutiliza la clave secreta de Django 
     'USER_ID_CLAIM': 'userid',
+    'UPDATE_LAST_LOGIN':True
 }
 
 SWAGGER_SETTINGS = {

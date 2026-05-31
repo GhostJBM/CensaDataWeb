@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from .models import Añosescolares, Añosescolaresdocentes, Administradores, Barrios,Casas,Centroseducativos,Centroseducativosdocentes,Contactoscentroseducativos,Contactosdirectores,Contactosdocentes,Contactosinvestigadores,Contactostutores,Cuentasadministradores,cuentasinvestigadoresadmin, Departamentos,Directores,Docentes,Docentesestudiantes,Empadronados,Empleos,Encuestas,Encuestasinidetrabajadores,Encuestasminedescolares,Estadosciviles,Estudiantes,Investigadores,Municipios,Personas,Relacionesparentescos,Tiposdeeducaciones,Tiposdeeducacionesdocentes,Tutores
-
+from .models import Añosescolares, Añosescolaresdocentes, Administradores, Barrios,Casas,Centroseducativos,Centroseducativosdocentes,Contactoscentroseducativos,Contactosdirectores,Contactosdocentes,Contactosinvestigadores,Contactostutores,Cuentasinvestigadoresadmin,CustomInvestigadorAdminManager, Departamentos,Directores,Docentes,Docentesestudiantes,Empadronados,Empleos,Censos,Encuestasinidetrabajadores,Encuestasminedescolares,Estadosciviles,Estudiantes,Investigadores,Municipios,Personas,Relacionesparentescos,Tiposdeeducaciones,Tiposdeeducacionesdocentes,Tutores
+from .services import *
 
 ## serializer para las tablas
 
@@ -8,6 +8,8 @@ class AñosescolaresSerializer(serializers.ModelSerializer):
     class Meta:
         model = Añosescolares
         fields = '__all__'
+    
+
 
 class AñosescolaresdocentesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,12 +20,65 @@ class AdministradoresSerializer(serializers.ModelSerializer):
     class Meta:
         model = Administradores
         fields = '__all__'
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.valiExistAdmin(validated_data) 
+        segundoNombre = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.segundoNombre(validated_data)
+        segundoApellido = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.segundoApellido(validated_data)
+        investigador = Investigadores.objects.create(
+            primernombre = validated_data["primernombre"],
+            segundonombre = segundoNombre,
+            primerapellido = validated_data["primerapellido"],
+            segundoapellido = segundoApellido,
+            sexo = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.sexo(validated_data["sexo"]),
+            edad = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.edad(validated_data["edad"]),
+            estado = 1,
+            cuentaid = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.cuenta(validated_data["cuentaid"]),
+            administradorid = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.admin(validated_data["administradorid"])
+        )
+        return investigador
+    def update(self, instance, validated_data):
+            segundoNombre = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.segundoNombre(validated_data)
+            segundoApellido = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.segundoApellido(validated_data)
+            instance.primernombre = validated_data["primernombre"]
+            instance.segundonombre = segundoNombre
+            instance.primerapellido = validated_data["primerapellido"]
+            instance.segundoapellido = segundoApellido
+            instance.sexo = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.sexo(validated_data["sexo"])
+            instance.edad = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.edad(validated_data["edad"])
+            instance.estado = instance.estado
+            instance.cuentaid = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.cuenta(validated_data["cuentaid"])
+            return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
         
 class BarriosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Barrios
         fields = '__all__'
 
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.validacionesBarrios.valiExiste(validated_data)
+        barrio = Barrios.objects.create(
+                nombre = validated_data["nombre"],
+                cantidadcasas = 0,
+                estado = 1,
+                municipioid = validated_data["municipioid"]
+            )
+        return barrio
+    def update(self, instance, validated_data):
+        Barrio = Barrios.objects.get(id=instance.id)
+        instance.nombre = validated_data["nombre"]
+        instance.cantidadcasas = Barrio.cantidadcasas
+        instance.estado = instance.estado
+        
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
 class CasasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Casas
@@ -64,41 +119,53 @@ class ContactostutoresSerializer(serializers.ModelSerializer):
         model = Contactostutores
         fields = '__all__'
         
-class CuentasadministradoresSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Cuentasadministradores
-        fields = ('id','usuario','estado')
-        read_only_fields = ('id')
-        
-class CuentasinvestigadoresSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = cuentasinvestigadoresadmin
-        fields = ('id','usuario','estado')
-        read_only_fields = ('id')
-        
 # Serializador para crear un nuevo Cliente (con contraseña)
 class CuentaInvestigadorCreationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = cuentasinvestigadoresadmin
+        model = Cuentasinvestigadoresadmin
         # Campos que el usuario enviará
-        fields = ('usuario', 'password', "Role")
+        fields = ('usuario', 'password', "Role","Correo")
         # La contraseña solo se puede escribir
         extra_kwargs = {'password': {'write_only': True}}
 
     # Método para guardar el usuario con contraseña encriptada
     def create(self, validated_data):
         # Usamos el método create_user que definimos en el Manager
-        user = cuentasinvestigadoresadmin.objects.create_user(
+        VRole = str(validated_data["Role"]).upper()
+        
+        user = Cuentasinvestigadoresadmin.objects.create_user(
             usuario=validated_data['usuario'],
             password=validated_data['password'],
-            Role=validated_data["Role"]    
-        )
+            Role=VRole,
+            Correo=validated_data["Correo"],
+            is_staff = 0,
+            is_superuser = 0,
+            is_active = 1,
+            estado = 1)  
         return user
 
 class DepartamentosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Departamentos
         fields = '__all__'
+    
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.validacionesDepartamentos.valiExiste(validated_data)
+        departamento = Departamentos.objects.create(
+            nombre = validated_data["nombre"],
+            cantidadmunicipios = 0,
+            estado = 1
+        )
+        return departamento
+    def update(self, instance, validated_data):
+        instance.nombre = validated_data["nombre"]
+        instance.cantidadmunicipios = instance.cantidadmunicipios
+        instance.estado = instance.estado
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
         
 class DirectoresSerializer(serializers.ModelSerializer):
     class Meta:
@@ -123,11 +190,25 @@ class EmpadronadosSerializer(serializers.ModelSerializer):
 class EmpleosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Empleos
-        fields = '__all__'  
+        fields = '__all__' 
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.validacionesEmpleos.valiExiste(validated_data)
+        Empleo = Empleos.objects.create(
+            empleo = validated_data["empleo"]
+        )
+        return Empleo
+    def update(self, instance, validated_data):
+        instance.empleo = validated_data["empleo"]
+        instance.estado = instance.estado
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
         
-class EncuestasSerializer(serializers.ModelSerializer):
+class CensosSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Encuestas
+        model = Censos
         fields = '__all__'  
         
 class EncuestasinidetrabajadoresSerializer(serializers.ModelSerializer):
@@ -145,21 +226,118 @@ class EstadoscivilesSerializer(serializers.ModelSerializer):
         model = Estadosciviles
         fields = '__all__'
         
+
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.validacionesEstadoCiviles.valiExiste(validated_data)
+        estado = Estadosciviles.objects.create(
+            estadocivil=validated_data["estadocivil"],
+            estado = 1
+        )
+        return estado
+    def update(self, instance, validated_data):
+        instance.estadocivil = validated_data["estadocivil"]
+        instance.estado = instance.estado
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
+        
 class EstudiantesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Estudiantes
         fields = '__all__'
-        
+class NivelesEduactivosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Niveleseducativos
+        fields = '__all__'
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.validacionesNivelesEducativos.valiExiste()
+        nivel = Niveleseducativos.objects.create(
+            niveleducativo = validated_data["nivelEducativo"],
+            grado = validated_data["grado"],
+            estado = 1
+        )
+        return nivel
+    def update(self, instance, validated_data):
+        instance.niveleducativo = validated_data["nivelEducativo"]
+        instance.grado = validated_data["grado"]
+        instance.estado = instance.estado
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
+                
 class InvestigadoresSerializer(serializers.ModelSerializer):    
     class Meta:
         model = Investigadores
+        fields = '__all__'
+    
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.valiExisteInves(validated_data) 
+        segundoNombre = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.segundoNombre(validated_data)
+        segundoApellido = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.segundoApellido(validated_data)
+        investigador = Investigadores.objects.create(
+            primernombre = validated_data["primernombre"],
+            segundonombre = segundoNombre,
+            primerapellido = validated_data["primerapellido"],
+            segundoapellido = segundoApellido,
+            sexo = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.sexo(validated_data["sexo"]),
+            edad = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.edad(validated_data["edad"]),
+            estado = 1,
+            cuentaid = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.cuenta(validated_data["cuentaid"]),
+            administradorid = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.admin(validated_data["administradorid"])
+        )
+        return investigador
+    def upadate(self, instance, validated_data):
+        instance.primernombre = validated_data["primernombre"]
+        instance.segundonombre = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.segundoNombre(validated_data["segundonombre"])
+        instance.primerapellido = validated_data["primerapellido"]
+        instance.segundoapellido = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.segundoApellido(validated_data["segundoapellido"])
+        instance.edad = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.edad(validated_data["edad"])
+        instance.sexo = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.sexo(validated_data["sexo"])
+        instance.estado = instance.estado
+        instance.cuentaid = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.cuenta(validated_data["cuentaid"])
+        instance.administradorid = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.admin(validated_data["administradorid"])
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
+class InfraestructuraSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Infraestructuras
         fields = '__all__'
 
 class MunicipiosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Municipios
         fields = '__all__'  
-        
+
+    
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.validacionesMunicipios.valiExiste(validated_data)
+        municipio = Municipios.objects.create(
+            nombre=validated_data["nombre"],
+            cantidadbarrios = 0,
+            estado = 1
+        )
+        return municipio
+    def update(self, instance, validated_data):
+        instance.nombre = validated_data["nombre"]
+        instance.cantidadbarrios = instance.cantidadbarrios
+        instance.estado = instance.estado
+        instance.departamentoid = validated_data["departamentoid"]
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
 class PersonasSerializer(serializers.ModelSerializer):  
     class Meta:
         model = Personas
@@ -169,6 +347,21 @@ class RelacionesparentescosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Relacionesparentescos
         fields = '__all__'
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.validacionesRelacionParentesco.valiExiste(validated_data)
+        relacion = Relacionesparentescos.objects.create(
+            relacion = validated_data["relacion"],
+            estado = 1
+        )
+        return relacion
+    def update(self, instance, validated_data):
+        instance.relacion = validated_data["relacion"]
+        instance.estado = instance.estado
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
         
 class TiposdeeducacionesSerializer(serializers.ModelSerializer):
     class Meta:
