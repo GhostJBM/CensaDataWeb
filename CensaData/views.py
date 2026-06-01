@@ -104,6 +104,8 @@ class CuentasInvestigadoresViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
             
         return [permission() for permission in permission_classes]
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdminOrReadOnly]
     
 class añosEscolaresViewSet(viewsets.ModelViewSet):
     queryset = Añosescolares.objects.all()

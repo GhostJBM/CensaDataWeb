@@ -88,10 +88,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',  
         'NAME': 'CensaData',      
-        'HOST': 'localhost\\SQLEXPRESS',          
+        'HOST': 'host.docker.internal',          
         'USER':'UsuarioAdministrador',
         "PASSWORD":'123',   
-        'PORT': '',               
+        'PORT': '1433',               
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server', 
             'charset':'utf8mb4',
