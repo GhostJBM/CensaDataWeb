@@ -211,7 +211,7 @@ class Cuentasinvestigadoresadmin(AbstractBaseUser, PermissionsMixin):
 
     objects = CustomInvestigadorAdminManager()
     USERNAME_FIELD = 'Correo'
-    REQUIRED_FIELDS = ['Role', 'usuario', 'password']
+    REQUIRED_FIELDS = ['Role','Usuario', 'password']
     class Meta:
         managed = False
         db_table = 'CuentasInvestigadoresAdmin'

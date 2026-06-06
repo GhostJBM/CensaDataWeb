@@ -10,7 +10,7 @@ from rest_framework.decorators import api_view
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from ninja import NinjaAPI
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 class AdministradoresViewSet(viewsets.ModelViewSet):
     queryset = Administradores.objects.all()
@@ -106,6 +106,9 @@ class CuentasInvestigadoresViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAdminOrReadOnly]
+    
+class CustomeTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomeTokenObtainSerializer
     
 class añosEscolaresViewSet(viewsets.ModelViewSet):
     queryset = Añosescolares.objects.all()
@@ -528,3 +531,4 @@ class EncuestaINIDETrabajadosCompletaViewSet(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+            

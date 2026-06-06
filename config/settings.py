@@ -88,7 +88,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',  
         'NAME': 'CensaData',      
-        'HOST': 'host.docker.internal',          
+        'HOST': 'localhost\\SQLEXPRESS',          
         'USER':'UsuarioAdministrador',
         "PASSWORD":'123',   
         'PORT': '1433',               
@@ -154,7 +154,7 @@ REST_FRAMEWORK = {
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60), # Duración del token de acceso
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15), # Duración del token de acceso
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),    # Duración del token de refresco
     'ROTATE_REFRESH_TOKENS': True,
     'ALGORITHM': 'HS256',

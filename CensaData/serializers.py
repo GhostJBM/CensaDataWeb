@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import Añosescolares, Añosescolaresdocentes, Administradores, Barrios,Casas,Centroseducativos,Centroseducativosdocentes,Contactoscentroseducativos,Contactosdirectores,Contactosdocentes,Contactosinvestigadores,Contactostutores,Cuentasinvestigadoresadmin,CustomInvestigadorAdminManager, Departamentos,Directores,Docentes,Docentesestudiantes,Empadronados,Empleos,Censos,Encuestasinidetrabajadores,Encuestasminedescolares,Estadosciviles,Estudiantes,Investigadores,Municipios,Personas,Relacionesparentescos,Tiposdeeducaciones,Tiposdeeducacionesdocentes,Tutores
 from .services import *
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.exceptions import AuthenticationFailed
+from django.db.models import Q
 
 ## serializer para las tablas
 
@@ -143,6 +146,23 @@ class CuentaInvestigadorCreationSerializer(serializers.ModelSerializer):
             is_active = 1,
             estado = 1)  
         return user
+    
+class CustomeTokenObtainSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        login = attrs.get("Correo")
+        password = attrs.get("password")
+        
+        user = Cuentasinvestigadoresadmin.objects.filter(Q( Correo = login) |Q(usuario=login) ).first()
+        
+        if not user:
+            raise AuthenticationFailed("Credenciales invalidas")
+        if not user.check_password(password):
+            raise AuthenticationFailed("Credenciales invalidas")
+        refresh = self.get_token(user)
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }
 
 class DepartamentosSerializer(serializers.ModelSerializer):
     class Meta:
@@ -362,7 +382,7 @@ class RelacionesparentescosSerializer(serializers.ModelSerializer):
         instance.estado = 0
         instance.save()
         return instance
-        
+            
 class TiposdeeducacionesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tiposdeeducaciones
