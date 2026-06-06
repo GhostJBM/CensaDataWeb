@@ -422,3 +422,6 @@ class GetElement:
 
 class GetAllElement:
     pass
+
+class ReportesService:
+    pass
