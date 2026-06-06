@@ -88,7 +88,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',  
         'NAME': 'CensaData',      
-        'HOST': 'localhost\\SQLEXPRESS',          
+        'HOST': 'host.docker.internal',          
         'USER':'UsuarioAdministrador',
         "PASSWORD":'123',   
         'PORT': '1433',               
