@@ -11,6 +11,7 @@ from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework_simplejwt.views import TokenObtainPairView
+from .models import Cuentasinvestigadoresadmin
 
 class AdministradoresViewSet(viewsets.ModelViewSet):
     queryset = Administradores.objects.all()
@@ -48,6 +49,24 @@ class AdministradoresViewSet(viewsets.ModelViewSet):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAdminOrReadOnly]
 
+class meViewSet(APIView):
+    def get(self, request):
+        try:
+            
+            user = request.user
+            data = Cuentasinvestigadoresadmin.objects.get(id=user.id)
+            return Response({
+                "id":data.id,
+                "Usuario":data.usuario,
+                "email":data.Correo,
+                "role":data.Role
+            })
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+    
+    authentication_classes = [JWTAuthentication]
+    
 class InvestigadoresViewSet(viewsets.ModelViewSet):
     queryset = Investigadores.objects.all()
     serializer_class = InvestigadoresSerializer

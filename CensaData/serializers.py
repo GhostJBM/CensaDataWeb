@@ -146,7 +146,7 @@ class CuentaInvestigadorCreationSerializer(serializers.ModelSerializer):
             is_active = 1,
             estado = 1)  
         return user
-    
+        
 class CustomeTokenObtainSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         login = attrs.get("Correo")

@@ -1,4 +1,5 @@
 annotated-types==0.7.0
+gunicorn==26.0.0
 aws==0.2.5
 bcrypt==5.0.0
 boto==2.49.0

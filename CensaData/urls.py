@@ -38,7 +38,6 @@ router.register(r'tiposDeEducacionesDocentes', TiposDeEducacionesDocentesViewSet
 router.register(r'tutores', TutoresViewSet)
 
 
-
 urlpatterns = [path('',include(router.urls)), path('censo/', CensoCompletoINIDETrabajadoresViewSet.as_view())]
 
 urlpatterns = [path('',include(router.urls)), path('EncuestaCompleta/', EncuestaINIDETrabajadosCompletaViewSet.as_view())]

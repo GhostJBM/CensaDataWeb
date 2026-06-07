@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-s*ip1td@yxx#^fa^&o=g^f+)&jb7lu*pgoxj91l(@fu80#)8h5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -88,9 +88,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',  
         'NAME': 'CensaData',      
-        'HOST': 'host.docker.internal',          
+        'HOST': 'censadata-server.database.windows.net',          
         'USER':'UsuarioAdministrador',
-        "PASSWORD":'123',   
+        "PASSWORD":'SqlLogin@3',   
         'PORT': '1433',               
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server', 
