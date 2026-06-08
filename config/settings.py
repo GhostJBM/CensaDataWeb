@@ -10,11 +10,13 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -57,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -78,9 +81,22 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+##Cors settings
 
+INSTALLED_APPS += [
+    'corsheaders']  
+
+MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware']+MIDDLEWARE
+
+CORS_ALLOW_ALL_ORIGINS = [
+    'http://localhost:5173',
+]
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # config/settings.py
 
@@ -93,9 +109,12 @@ DATABASES = {
         "PASSWORD":'SqlLogin@3',   
         'PORT': '1433',               
         'OPTIONS': {
-            'driver': 'ODBC Driver 17 for SQL Server', 
+            'driver': 'ODBC Driver 17 for SQL Server',
+            'Encrypt': 'yes',
+            'TrustServerCertificate': 'no',
             'charset':'utf8mb4',
             'use_unicode':True,
+            'conection_timeout': 30,
         },
     }
 }

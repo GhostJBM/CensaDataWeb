@@ -40,6 +40,33 @@ class AdministradoresViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )        
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         
@@ -86,6 +113,33 @@ class InvestigadoresViewSet(viewsets.ModelViewSet):
             return Response({
                 "message":"Investigador creado con exito"
             }, status=status.HTTP_201_CREATED)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
         except ExcepcionNegocio as e:
             return Response(
                 {
@@ -168,6 +222,33 @@ class BarriosViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         
@@ -241,6 +322,33 @@ class DepartamentosViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         
@@ -296,6 +404,33 @@ class EmpleosViewSet(viewsets.ModelViewSet):
                     
                 },
                 status=status.HTTP_400_BAD_REQUEST)
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         
@@ -339,6 +474,33 @@ class EstadosCivilesViewSet(viewsets.ModelViewSet):
             return Response({
                 "message":"Estado civil creado con exito"
             }, status=status.HTTP_201_CREATED)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
         except ExcepcionNegocio as e:
             return Response(
                 {
@@ -395,10 +557,37 @@ class MunicipiosViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
         
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
         serializer = self.get_serializer()
         serializer.delete(instance)
         
-        return Response({"message":"El Municipio fue actualizado con exito"})
+        return Response({"message":"El Municipio fue Eliminado con exito"})
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAdminOrReadOnly]
 
@@ -426,6 +615,33 @@ class RelacionesParentescosViewSet(viewsets.ModelViewSet):
             return Response({
                 "message":"Relacion de parentesco creada con exito"
             }, status=status.HTTP_201_CREATED)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
         except ExcepcionNegocio as e:
             return Response(
                 {
@@ -471,6 +687,33 @@ class NivelesEduactivosViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         
@@ -496,7 +739,6 @@ class TutoresViewSet(viewsets.ModelViewSet):
     
 ## views personalizadas
 class CensoCompletoINIDETrabajadoresViewSet(APIView):
-    authentication_classes = [JWTAuthentication]
     
     def post(self, request):
 
@@ -523,6 +765,7 @@ class CensoCompletoINIDETrabajadoresViewSet(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+    authentication_classes = [JWTAuthentication]
     
 class EncuestaINIDETrabajadosCompletaViewSet(APIView):
     def post(self, request):
@@ -550,4 +793,4 @@ class EncuestaINIDETrabajadosCompletaViewSet(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
-            
+    authentication_classes = [JWTAuthentication]

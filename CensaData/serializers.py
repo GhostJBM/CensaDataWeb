@@ -40,16 +40,18 @@ class AdministradoresSerializer(serializers.ModelSerializer):
         )
         return investigador
     def update(self, instance, validated_data):
-            segundoNombre = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.segundoNombre(validated_data)
-            segundoApellido = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.segundoApellido(validated_data)
-            instance.primernombre = validated_data["primernombre"]
+            
+            segundoNombre = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.segundoNombre(validated_data.get("segundonombre",instance.segundonombre))
+            segundoApellido = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.segundoApellido(validated_data.get("segundoapellido", instance.segundoapellido))
+            instance.primernombre = validated_data.get("primernombre", instance.primernomre)
             instance.segundonombre = segundoNombre
-            instance.primerapellido = validated_data["primerapellido"]
+            instance.primerapellido = validated_data.get("primerapellido", instance.primerapellido)
             instance.segundoapellido = segundoApellido
-            instance.sexo = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.sexo(validated_data["sexo"])
-            instance.edad = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.edad(validated_data["edad"])
+            instance.sexo = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.sexo(validated_data.get("sexo", instance.sexo))
+            instance.edad = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.edad(validated_data.get("edad", instance.edad))
             instance.estado = instance.estado
-            instance.cuentaid = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.cuenta(validated_data["cuentaid"])
+            instance.cuentaid = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.cuenta(validated_data.get("cuentaid", instance.cuentaid))
+            instance.save()
             return instance
     def delete(self, instance):
         instance.estado = 0
@@ -72,7 +74,7 @@ class BarriosSerializer(serializers.ModelSerializer):
         return barrio
     def update(self, instance, validated_data):
         Barrio = Barrios.objects.get(id=instance.id)
-        instance.nombre = validated_data["nombre"]
+        instance.nombre = validated_data.get("nombre", instance.nombre)
         instance.cantidadcasas = Barrio.cantidadcasas
         instance.estado = instance.estado
         
@@ -178,9 +180,10 @@ class DepartamentosSerializer(serializers.ModelSerializer):
         )
         return departamento
     def update(self, instance, validated_data):
-        instance.nombre = validated_data["nombre"]
+        instance.nombre = validated_data.get("nombre", instance.nombre)
         instance.cantidadmunicipios = instance.cantidadmunicipios
         instance.estado = instance.estado
+        instance.save()
         return instance
     def delete(self, instance):
         instance.estado = 0
@@ -218,8 +221,9 @@ class EmpleosSerializer(serializers.ModelSerializer):
         )
         return Empleo
     def update(self, instance, validated_data):
-        instance.empleo = validated_data["empleo"]
+        instance.empleo = validated_data.get("empleo", instance.empleo)
         instance.estado = instance.estado
+        instance.save() 
         return instance
     def delete(self, instance):
         instance.estado = 0
@@ -255,7 +259,7 @@ class EstadoscivilesSerializer(serializers.ModelSerializer):
         )
         return estado
     def update(self, instance, validated_data):
-        instance.estadocivil = validated_data["estadocivil"]
+        instance.estadocivil = validated_data.get("estadocivil", instance.estadocivil)
         instance.estado = instance.estado
         instance.save()
         return instance
@@ -281,8 +285,8 @@ class NivelesEduactivosSerializer(serializers.ModelSerializer):
         )
         return nivel
     def update(self, instance, validated_data):
-        instance.niveleducativo = validated_data["nivelEducativo"]
-        instance.grado = validated_data["grado"]
+        instance.niveleducativo = validated_data.get("nivelEducativo", instance.niveleducativo)
+        instance.grado = validated_data.get("grado", instance.grado)
         instance.estado = instance.estado
         instance.save()
         return instance
@@ -312,18 +316,42 @@ class InvestigadoresSerializer(serializers.ModelSerializer):
             administradorid = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.admin(validated_data["administradorid"])
         )
         return investigador
-    def upadate(self, instance, validated_data):
-        instance.primernombre = validated_data["primernombre"]
-        instance.segundonombre = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.segundoNombre(validated_data["segundonombre"])
-        instance.primerapellido = validated_data["primerapellido"]
-        instance.segundoapellido = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.segundoApellido(validated_data["segundoapellido"])
-        instance.edad = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.edad(validated_data["edad"])
-        instance.sexo = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.sexo(validated_data["sexo"])
+    
+    def update(self, instance, validated_data):
+        Val = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin
+
+        instance.primernombre = validated_data.get("primernombre", instance.primernombre)
+
+        instance.segundonombre = Val.segundoNombre(
+            validated_data.get("segundonombre", instance.segundonombre)
+        )
+
+        instance.primerapellido = validated_data.get("primerapellido", instance.primerapellido)
+
+        instance.segundoapellido = Val.segundoApellido(
+        validated_data.get("segundoapellido", instance.segundoapellido)
+        )
+
+        instance.edad = Val.edad(
+            validated_data.get("edad", instance.edad)
+        )
+
+        instance.sexo = Val.sexo(
+            validated_data.get("sexo", instance.sexo)
+        )
         instance.estado = instance.estado
-        instance.cuentaid = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.cuenta(validated_data["cuentaid"])
-        instance.administradorid = validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.admin(validated_data["administradorid"])
+
+        instance.cuentaid = Val.cuenta(
+            validated_data.get("cuentaid", instance.cuentaid)
+        )
+
+        instance.administradorid = Val.admin(
+            validated_data.get("administradorid", instance.administradorid)
+        )
+
         instance.save()
         return instance
+
     def delete(self, instance):
         instance.estado = 0
         instance.save()
@@ -348,10 +376,10 @@ class MunicipiosSerializer(serializers.ModelSerializer):
         )
         return municipio
     def update(self, instance, validated_data):
-        instance.nombre = validated_data["nombre"]
+        instance.nombre = validated_data.get("nombre", instance.nombre)
         instance.cantidadbarrios = instance.cantidadbarrios
         instance.estado = instance.estado
-        instance.departamentoid = validated_data["departamentoid"]
+        instance.departamentoid = validated_data.get("departamentoid", instance.departamentoid)
         instance.save()
         return instance
     def delete(self, instance):
@@ -375,7 +403,7 @@ class RelacionesparentescosSerializer(serializers.ModelSerializer):
         )
         return relacion
     def update(self, instance, validated_data):
-        instance.relacion = validated_data["relacion"]
+        instance.relacion = validated_data.get("relacion", instance.relacion)
         instance.estado = instance.estado
         return instance
     def delete(self, instance):
