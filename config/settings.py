@@ -83,15 +83,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 ##Cors settings
 
-INSTALLED_APPS += [
-    'corsheaders']  
+#INSTALLED_APPS += [
+ #  'corsheaders']  
 
-MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware']+MIDDLEWARE
+#MIDDLEWARE = [
+ #   'corsheaders.middleware.CorsMiddleware']+MIDDLEWARE
 
-CORS_ALLOW_ALL_ORIGINS = [
-    'http://localhost:5173',
-]
+#CORS_ALLOW_ALL_ORIGINS = [
+ #  'http://localhost:5173',
+#]
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
@@ -104,7 +104,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',  
         'NAME': 'CensaData',      
-        'HOST': 'censadata-server.database.windows.net',          
+        #'HOST': 'censadata-server.database.windows.net', 
+        'HOST': 'host.docker.internal',        
         'USER':'UsuarioAdministrador',
         "PASSWORD":'SqlLogin@3',   
         'PORT': '1433',               
@@ -192,3 +193,11 @@ SWAGGER_SETTINGS = {
             'description': 'Formato: Bearer <tu_token_jwt>'},
     },
 }
+
+## Emails Settings
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT =587
+EMAIL_HOST_USER = 'censadata@gmail.com'
+EMAIL_HOST_PASSWORD ='vlwqdqjqrxcmybej'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

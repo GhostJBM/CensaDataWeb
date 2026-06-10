@@ -148,7 +148,21 @@ class CuentaInvestigadorCreationSerializer(serializers.ModelSerializer):
             is_active = 1,
             estado = 1)  
         return user
+
+class  CuentasInvestigadoresAdmin(serializers.ModelSerializer):
+    class Meta:
+        model = Cuentasinvestigadoresadmin
+        fields = 'usuario, password, Role, Correo'
+    def create(self, validated_data):
+        return True
+    def update(self, instance, validated_data):
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
         
+                
 class CustomeTokenObtainSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         login = attrs.get("Correo")

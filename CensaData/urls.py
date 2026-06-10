@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework import routers
 from CensaData.views import *
-
+from django.contrib.auth import views as auth_views
 router = routers.DefaultRouter()
 
 router.register(r'investigadores', InvestigadoresViewSet)
@@ -38,6 +38,16 @@ router.register(r'tiposDeEducacionesDocentes', TiposDeEducacionesDocentesViewSet
 router.register(r'tutores', TutoresViewSet)
 
 
-urlpatterns = [path('',include(router.urls)), path('censo/', CensoCompletoINIDETrabajadoresViewSet.as_view())]
+urlpatterns = [
+# Tus endpoints
+    path('censo/', CensoCompletoINIDETrabajadoresViewSet.as_view()),
 
-urlpatterns = [path('',include(router.urls)), path('EncuestaCompleta/', EncuestaINIDETrabajadosCompletaViewSet.as_view())]
+    path('EncuestaCompleta/', EncuestaINIDETrabajadosCompletaViewSet.as_view()),
+
+    path('', include(router.urls)),
+    
+    ## Restaurar contraseña
+    path('recovery/request/', RecoveryPasswordView.as_view(), name="recovery-request"),
+    path('recovery/verify/', VerificarPasswordView.as_view(), name="recovery-verify"),
+    path('recovery/changePassword/', changePasswordView.as_view(), name="recovery-changePassword"),
+]

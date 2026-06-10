@@ -1,21 +1,25 @@
 from rest_framework import viewsets
 from rest_framework.viewsets import ViewSet
+from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import *
 from .serializers import *
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .permissions import IsAdminOrReadOnly
 from .services import *
-from rest_framework.decorators import api_view
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import action
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import Cuentasinvestigadoresadmin
 
 class AdministradoresViewSet(viewsets.ModelViewSet):
     queryset = Administradores.objects.all()
     serializer_class = AdministradoresSerializer
+    
+    def get(self, request):
+        user = Cuentasinvestigadoresadmin.objects.filter(estado = 1).all()
+        
+        authentication_classes = [AllowAny]
+        permission_classes = [IsAuthenticated]
     def create(self, request):
         if not request.data:
             return Response({
@@ -162,12 +166,15 @@ class CuentasInvestigadoresViewSet(viewsets.ModelViewSet):
     queryset = Cuentasinvestigadoresadmin.objects.all()
     serializer_class = CuentaInvestigadorCreationSerializer
     
-    
-    
+    def list(self, request, *args, **kwargs):
+
+            user = Cuentasinvestigadoresadmin.objects.filter(estado = 1).all()
+            return Response({"data": user.all().values("id","usuario","Correo","Role")})
     def get_serializer_class(self):
         if self.request.method == "POST":
             return CuentaInvestigadorCreationSerializer
         return Cuentasinvestigadoresadmin
+
     
     def get_permissions(self):
         if self.action == 'create': # 'create' es el método POST
@@ -794,3 +801,69 @@ class EncuestaINIDETrabajadosCompletaViewSet(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
     authentication_classes = [JWTAuthentication]
+    
+class RecoveryPasswordView(APIView):
+    def post(self, request):
+        email = request.data.get("Correo")
+        
+        user = Cuentasinvestigadoresadmin.objects.filter(
+            Correo = email
+        ).first()
+        
+        if not user:
+            return Response({
+                "message":"Si existe la cuenta se enviará un correo"
+            })
+            
+        code = RecoveryPasswordService.create_recoveryCode(
+            user
+        )
+        
+        return Response({
+            "message":"Codigo enviado"
+        })
+    permission_classes=[AllowAny]
+    
+class VerificarPasswordView(APIView):
+    def post(self, request):
+        cuentaid = request.data.get("Id")
+        cuenta = Cuentasinvestigadoresadmin.objects.filter(Correo=cuentaid).first()
+        code = request.data.get("code")
+        token = None
+        try:
+            token = RecoveryPasswordService.verifyCode(cuenta, code)
+        except ExcepcionNegocio as e:
+            return Response({
+                "error":str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not token:
+            return Response({
+                "message":"Código invalido"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        return Response({
+            "token":token
+        })
+    permission_classes=[AllowAny]
+class changePasswordView(APIView):
+    def post(self, request):
+        token = request.data.get("token")
+        password = request.data.get("password")
+        
+        success=RecoveryPasswordService.changePassword(
+            token,
+            password
+        )
+        
+        if not success:
+            return Response({
+                "message":"Token invalido"
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+        return Response({
+            "message":"Contraseña cambiada"
+        }, status=status.HTTP_200_OK)
+    permission_classes=[AllowAny]
+## Views de reportes
+class EstadisticasINIDEView(APIView):
+    pass

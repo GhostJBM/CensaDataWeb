@@ -1,11 +1,14 @@
 ## Distintos servicios del proyecto
 from django.db import transaction 
+from django.utils import timezone
+from django.contrib.auth.hashers import make_password, check_password
 from .serializers import *
 from .models import *
 from rest_framework import status
 from rest_framework.response import Response
 from datetime import datetime
-import math
+from django.core.mail import send_mail
+import math, secrets
 
 ##Clase de excepciones
 class ExcepcionNegocio(Exception):
@@ -425,3 +428,76 @@ class GetAllElement:
 
 class ReportesService:
     pass
+
+class RecoveryPasswordService:
+    @staticmethod
+    def sendEmail(email, code):
+            send_mail(
+            subject="Recuperación de contraseña",
+            message=f"Tu código de recuperacion de 6 digitos es {code}",
+            from_email="censadata@gmail.com",
+            recipient_list=[email],
+            fail_silently=False,
+        )
+    @staticmethod
+    def create_recoveryCode(cuentaid):
+        
+        code = str(secrets.randbelow(900000) + 100000)
+        RecoveryPasswordService.sendEmail(cuentaid.Correo, code)
+        RecoveryPassword.objects.filter(
+            cuentaid = cuentaid,
+            estado = True
+        ).update(estado = False)
+        
+        RecoveryPassword.objects.create(
+            cuentaid = cuentaid,
+            coderecovery = make_password(code),
+            expires = timezone.now() + timezone.timedelta(minutes = 10),
+            estado = True
+        )
+    @staticmethod
+    def verifyCode(cuentaid, code):
+        recovery = RecoveryPassword.objects.filter(
+            cuentaid = cuentaid,
+            estado = True
+        ).first()
+        
+        if not recovery:
+            raise ExcepcionNegocio("No existe una solicitud de recuperación activa para esta cuenta")
+        
+        if recovery.expires < timezone.now():
+            raise ExcepcionNegocio("la solicitud de recuperación ha expirado")
+        
+        if not check_password(code,
+                            recovery.coderecovery):
+            raise ExcepcionNegocio("No se ha ingresado el código correcto")
+        
+        Token = secrets.token_urlsafe(32)
+        
+        recovery.tokenrecovery = Token
+        recovery.estado = False
+        recovery.save()
+        return Token
+        
+    @staticmethod    
+    def changePassword(token, new_password):
+        
+        recovery = RecoveryPassword.objects.filter(
+            tokenrecovery = token
+        ).first()
+        
+        if not recovery:
+            return False
+        
+        User = Cuentasinvestigadoresadmin.objects.get(
+            id=recovery.cuentaid.id
+        )
+        
+        User.set_password(new_password)
+        User.save()
+        
+        recovery.delete()
+        
+        return True
+    
+    
