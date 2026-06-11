@@ -601,6 +601,65 @@ class MunicipiosViewSet(viewsets.ModelViewSet):
 class PersonasViewSet(viewsets.ModelViewSet):
     queryset = Personas.objects.all()
     serializer_class = PersonasSerializer
+    
+    def create(self, request):
+        if not request.data:
+            return Response({
+                "message":"No hay contenido"
+            },
+            status=status.HTTP_204_NO_CONTENT
+            )
+            
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            return Response({
+                "message":"Este metodo es inaccesible desde este lugar"
+            }, status=status.HTTP_201_CREATED)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        serializer = self.get_serializer()
+        
+        serializer.delete(instance)
+        return Response({"message":"La relacion fue eliminada"})
     authentication_classes = [JWTAuthentication]
     
 class RelacionesParentescosViewSet(viewsets.ModelViewSet):

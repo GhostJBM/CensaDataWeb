@@ -286,11 +286,51 @@ class EncuestaInideService:
             
 ## otras clases
 class validacionesInidividualesIncercion:
+    class validacionesPersonas:
+        def valiExiste(data):
+            try:
+                fecha = validacionesInidividualesIncercion.validacionesPersonas.valiFecha(data["fechadenacimiento"])
+                if Personas.objects.filter(primernombre=data["primernombre"], 
+                                        primerapellido = data["primerapellido"], fechadenacimiento = fecha).exists():
+                    raise ExcepcionNegocio("La persona ya existe")
+            except Exception as e:
+                raise ExcepcionNegocio(e)
+        def edad(fecha):
+            try:
+                fechaNa = datetime.strptime(str(fecha),"%Y-%m-%d")
+                fechaActual = datetime.now()
+            
+                edad = fechaActual.year - fechaNa.year
+            
+                if(fechaActual.month, fechaActual.day)< (fechaNa.month, fechaNa.day):
+                    edad -= 1
+                
+                return int(edad)
+            except:
+                raise ExcepcionNegocio(f"La fecha de nacimiento de {fecha} esta mal")
+        def valiSexo(sexo):
+            sexoV = None
+            try:
+                sexoV = chr(sexo).upper()
+                if sexoV != "F" or sexoV != "M":
+                    raise ExcepcionNegocio("Sexo invalido")
+            except:
+                raise ExcepcionNegocio("El sexo solo puede ser de una letra")
+            return sexoV
+            
+        def valiFecha(fecha):
+            fechaValida = None
+            try:
+                fechaValida = datetime.strptime(str(fecha), "%Y-%m-%d")
+            except ExcepcionNegocio as e:
+                raise e("La fecha es invalida")
+            return fechaValida
     class validacionesBarrios:
         def valiExiste(data): 
             try:
-               if Barrios.objects.filter(nombre=data["nombre"], municipioid_id=data["municipioid"]).exists():
-                raise ExcepcionNegocio("El Barrio Ya existe")
+                if Barrios.objects.filter(nombre=data["nombre"], municipioid_id=data["municipioid"]).exists():
+                    raise ExcepcionNegocio("El Barrio Ya existe")
+                return True
             except Exception as e:
                 raise ExcepcionNegocio(e)
     class validacionesDepartamentos:

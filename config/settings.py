@@ -105,9 +105,11 @@ DATABASES = {
         'ENGINE': 'mssql',  
         'NAME': 'CensaData',      
         #'HOST': 'censadata-server.database.windows.net', 
-        'HOST': 'host.docker.internal',        
+        #'HOST': 'host.docker.internal',
+        "HOST":"localhost\\SQLEXPRESS",        
         'USER':'UsuarioAdministrador',
-        "PASSWORD":'SqlLogin@3',   
+        #"PASSWORD":'SqlLogin@3',  
+        "PASSWORD":"123" ,
         'PORT': '1433',               
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',

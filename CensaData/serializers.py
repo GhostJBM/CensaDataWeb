@@ -224,6 +224,26 @@ class EmpadronadosSerializer(serializers.ModelSerializer):
         model = Empadronados
         fields = '__all__'
         
+        
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.validacionesDepartamentos.valiExiste(validated_data)
+        departamento = Departamentos.objects.create(
+            nombre = validated_data["nombre"],
+            cantidadmunicipios = 0,
+            estado = 1
+        )
+        return departamento
+    def update(self, instance, validated_data):
+        instance.nombre = validated_data.get("nombre", instance.nombre)
+        instance.cantidadmunicipios = instance.cantidadmunicipios
+        instance.estado = instance.estado
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
+        
 class EmpleosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Empleos
@@ -291,7 +311,7 @@ class NivelesEduactivosSerializer(serializers.ModelSerializer):
         model = Niveleseducativos
         fields = '__all__'
     def create(self, validated_data):
-        validacionesInidividualesIncercion.validacionesNivelesEducativos.valiExiste()
+        validacionesInidividualesIncercion.validacionesNivelesEducativos.valiExiste(validated_data)
         nivel = Niveleseducativos.objects.create(
             niveleducativo = validated_data["nivelEducativo"],
             grado = validated_data["grado"],
@@ -405,6 +425,26 @@ class PersonasSerializer(serializers.ModelSerializer):
         model = Personas
         fields = '__all__'  
         
+        
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.validacionesPersonas.valiExiste(validated_data)
+        return ExcepcionNegocio("La accion no puede ser completada desde este punto")
+    def update(self, instance, validated_data):
+        instance.primernombre = validated_data.get("primernombre", instance.primernombre)
+        instance.segundonombre = validated_data.get("segundonombre", instance.segundonombre)
+        instance.primerapellido = validated_data.get("primerapellido", instance.primerapellido)
+        instance.segundoapellido = validated_data.get("segundoapellido", instance.segundoapellido)
+        instance.fechanacimiento = validacionesInidividualesIncercion.validacionesPersonas.valiFecha(validated_data.get("fechanacimiento", instance.fechanacimiento))
+        instance.edad = validacionesInidividualesIncercion.validacionesPersonas.edad(validated_data.get("fechanacimiento"), instance.fechanacimiento)
+        instance.sexo = validacionesInidividualesIncercion.validacionesPersonas.valiSexo(validated_data.get("sexo"), instance.sexo)
+        instance.estado = instance.estado
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
+        
 class RelacionesparentescosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Relacionesparentescos
@@ -438,4 +478,19 @@ class TiposdeeducacionesdocentesSerializer(serializers.ModelSerializer):
 class TutoresSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tutores
+        fields = '__all__'
+
+class TiposDePisosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tiposdepisos
+        fields = '__all__'
+        
+class TiposDeTechosSeralizer(serializers.ModelSerializer):
+    class Meta:
+        model = Tiposdetechos
+        fields = '__all__'
+        
+class MaterialesDeConstruccionesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Materialesconstrucciones
         fields = '__all__'
