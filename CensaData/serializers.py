@@ -649,3 +649,47 @@ class MaterialesDeConstruccionesSerializer(serializers.ModelSerializer):
         instance.estado = 0
         instance.save()
         return instance
+
+class discapacidadesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Discapacidades
+        fields = "__all__"
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.validacionesDiscapacidades.valiExiste(validated_data)
+        discapacidad = Discapacidades.objects.create(
+            discapacidad = validated_data["discapacidad"],
+            estado = 1
+        )
+        return discapacidad
+    def update(self, instance, validated_data):
+        instance.discapacidad = validated_data.get("discapacidad")
+        instance.estado = instance.estado
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
+
+class discapacidadesPersonasSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Discapacidadespersonas
+        fields="__all__"
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.ValidacionesDiscapacidades.DiscPersonExiste(validated_data)
+        DiscPerson = Discapacidadespersonas.objects.create(
+            discapacidadid = validated_data["discapacidadid"],
+            personaid = validated_data["personaid"],
+            estado = 1
+        )
+        return DiscPerson
+    def update(self, instance, validated_data):
+        instance.discapacidadid = validated_data.get("discapacidadid", instance.discapacidadid)
+        instance.personaid = validated_data.get("personaid", instance.personaid)
+        validacionesInidividualesIncercion.ValidacionesDiscapacidadesPersona.DiscPersonExiste(instance)
+        return instance
+
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance

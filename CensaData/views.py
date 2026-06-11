@@ -101,6 +101,7 @@ class meViewSet(APIView):
 class InvestigadoresViewSet(viewsets.ModelViewSet):
     queryset = Investigadores.objects.all()
     serializer_class = InvestigadoresSerializer
+
     def list(self, request, *args, **kwargs):
         user = Investigadores.objects.filter(estado = 1).all()
         return Response({"data": user.all().values("id","primernombre","segundonombre","primerapellido","segundoapellido", "edad", "sexo","cuentaid", "administradorid")})
@@ -1407,6 +1408,139 @@ class TiposDeTechosViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer()
         serializer.delete(instance)
         return Response({"message":"El tipo de techo fue eliminado"})
+    
+class DiscapacidadesViewSet(viewsets.ModelViewSet):
+    queryset =  Discapacidades.objects.all()
+    serializer_class = discapacidadesSerializer
+    def list(self, request, *args, **kwargs):
+        discapacidad = Discapacidades.objects.filter(estado=1).all()
+        return Response({
+            "data":discapacidad
+        }, status=status.HTTP_200_OK)
+    def create(self, request):
+        if not request.data:
+            return Response({
+                "message":"No hay contenido"
+            },
+            status=status.HTTP_204_NO_CONTENT
+            )
+            
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            return Response({
+                "message":"discapacidad creada con exito"
+            }, status=status.HTTP_201_CREATED)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        serializer = self.get_serializer()
+        serializer.delete(instance)
+        return Response({"message":"la discapacidad fue eliminado"})
+    authentication_classes = [JWTAuthentication]
+class DiscapacidadesPersonasViewSet(viewsets.ModelViewSet):
+    queryset = Discapacidadespersonas.objects.all()
+    serializer_class = discapacidadesPersonasSerializer
+    def list(self, request, *args, **kwargs):
+        discpersonas= Discapacidadespersonas.objects.filter(estado=1).all()
+        return Response({
+            "data":discpersonas
+        }, status=status.HTTP_200_OK)
+    def create(self, request):
+        if not request.data:
+            return Response({
+                "message":"No hay contenido"
+            },
+            status=status.HTTP_204_NO_CONTENT
+            )
+            
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            return Response({
+                "message":"La relacion discapacidad-Persona fue creada con exito"
+            }, status=status.HTTP_201_CREATED)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        serializer = self.get_serializer()
+        serializer.delete(instance)
+        return Response({"message":"fue eliminado"})    
+    authentication_classes = [JWTAuthentication]
 class TiposDeEducacionesViewSet(viewsets.ModelViewSet):
     queryset = Tiposdeeducaciones.objects.all()
     serializer_class = TiposdeeducacionesSerializer

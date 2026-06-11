@@ -495,12 +495,15 @@ class validacionesInidividualesIncercion:
                         raise ExcepcionNegocio("el techo ya existe")
                 except ValueError as e:
                     raise ExcepcionNegocio(e)
+    class ValidacionesDiscapacidadesPersona:
+        def DiscPersonExiste(data):
+            try:
+                if Discapacidadespersonas.objects.filter(discapacidadid=data["discapacidadid"], personaid=data["discapacidadid"]):
+                    raise ExcepcionNegocio("Ya existe")
+            except ValueError as e:
+                raise ExcepcionNegocio(e)
 
-
-class GetElement:
-    pass
-
-class GetAllElement:
+class Estadisticas:
     pass
 
 class ReportesService:
