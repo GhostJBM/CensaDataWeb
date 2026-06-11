@@ -627,6 +627,11 @@ class EmpadronadosViewSet(viewsets.ModelViewSet):
 class EmpleosViewSet(viewsets.ModelViewSet):
     queryset = Empleos.objects.all()
     serializer_class = EmpleosSerializer
+    def list(self, request, *args, **kwargs):
+        empleo = Empleos.objects.filter(estado = 1).all()
+        return Response({
+            "data":empleo.values("id","empleo")
+        })
     def create(self, request):
         if not request.data:
             return Response({
