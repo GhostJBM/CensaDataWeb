@@ -1415,7 +1415,7 @@ class DiscapacidadesViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         discapacidad = Discapacidades.objects.filter(estado=1).all()
         return Response({
-            "data":discapacidad
+            "data":discapacidad.values("id","discapacidad")
         }, status=status.HTTP_200_OK)
     def create(self, request):
         if not request.data:
@@ -1481,7 +1481,7 @@ class DiscapacidadesPersonasViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         discpersonas= Discapacidadespersonas.objects.filter(estado=1).all()
         return Response({
-            "data":discpersonas
+            "data":discpersonas.values("id","discapacidadid","personaid")
         }, status=status.HTTP_200_OK)
     def create(self, request):
         if not request.data:

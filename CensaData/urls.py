@@ -40,6 +40,8 @@ router.register(r'contactosEmpadronados', ContactosEmpadronadosViewSet)
 router.register(r'tiposDePisos', TiposDePisosViewSet)
 router.register(r'tiposDeTechos', TiposDeTechosViewSet)
 router.register(r'materialesConstrucciones', MaterialesConstruccionViewSet)
+router.register(r'Discapacidades', DiscapacidadesViewSet)
+router.register(r'DiscapacidadesPersonas', DiscapacidadesPersonasViewSet)
 
 
 urlpatterns = [
