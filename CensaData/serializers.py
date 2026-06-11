@@ -689,6 +689,7 @@ class discapacidadesPersonasSerializer(serializers.ModelSerializer):
         validacionesInidividualesIncercion.ValidacionesDiscapacidadesPersona.DiscPersonExiste(instance)
         return instance
 
+
     def delete(self, instance):
         instance.estado = 0
         instance.save()
