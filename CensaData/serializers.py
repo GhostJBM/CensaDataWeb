@@ -88,6 +88,22 @@ class CasasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Casas
         fields = '__all__'
+    def update(self, instance, validated_data):
+        instance.numcasa = validated_data.get("numcasa", instance.numcasa)
+        instance.cantidaddehombres = validated_data.get("cantidadhombres", instance.cantidadhombres)
+        instance.cantidaddemujeres = validated_data.get("cantidadmujeres", instance.cantidadmujeres)
+        instance.estado = instance.estado
+        instance.barrioid = validated_data.get("barrioid", instance.barrioid)
+        instance.infraestructuraid = validated_data.get("infraestructuraid", instance.infraestructuraid)
+        instance.ingresofamiliar = validated_data.get("ingresofamiliar", instance.ingresofamiliar)
+        instance.serviciodeagua = validated_data.get("serviciodeagua", instance.serviciodeagua)
+        instance.serviciodeenergia = validated_data.get("serviciodeenergia", instance.serviciodeenergia)
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
         
 class CentroseducativosSerializer(serializers.ModelSerializer):
     class Meta:
@@ -118,7 +134,48 @@ class ContactosinvestigadoresSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contactosinvestigadores
         fields = '__all__'
-        
+   
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.ValidacionesInvestigadoresAdmin.contantoExistente(validated_data)
+        contacto = Contactosinvestigadores.objects.create(
+            contacto = validated_data["contacto"],
+            investigadorid = validated_data["investigadorid"],
+            estado = 1
+        )
+        return contacto
+    def update(self, instance, validated_data):
+        instance.contacto = validated_data.get("contacto", instance.contacto)
+        instance.investigadorid = validated_data.get("investigadorid", instance.investigadorid)
+        instance.estado = instance.estado
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
+class ContactosEmpadronadosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contactosempadronados
+        fields = '__all__'
+
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.validacionesIndividualesEmpadronados.valiExisteContato(validated_data)
+        contacto = Contactosempadronados.objects.create(
+            contacto = validated_data["contacto"],
+            empadronadoid = validated_data["empadronadoid"],
+            estado = 1
+        )
+        return contacto
+    def update(self, instance, validated_data):
+        instance.contacto = validated_data.get("contacto", instance.contacto)
+        instance.empadronadoid = validated_data.get("empadronadoid", instance.empadronadoid)
+        instance.estado = instance.estado
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
 class ContactostutoresSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contactostutores
@@ -184,7 +241,7 @@ class DepartamentosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Departamentos
         fields = '__all__'
-    
+
     def create(self, validated_data):
         validacionesInidividualesIncercion.validacionesDepartamentos.valiExiste(validated_data)
         departamento = Departamentos.objects.create(
@@ -224,7 +281,7 @@ class EmpadronadosSerializer(serializers.ModelSerializer):
         model = Empadronados
         fields = '__all__'
         
-        
+    
     def create(self, validated_data):
         validacionesInidividualesIncercion.validacionesDepartamentos.valiExiste(validated_data)
         departamento = Departamentos.objects.create(
@@ -268,11 +325,41 @@ class CensosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Censos
         fields = '__all__'  
-        
+    def update(self, instance, validated_data):
+        instance.nombrecenso = validated_data.get("nombrecenso", instance.nombrecenso)
+        instance.cantidadencuestados = validated_data.get("cantidadencuestados", instance.cantidadencuestados)
+        instance.cantidadrespuestaspositivas = validated_data.get("cantidadrespuestaspositivas", instance.cantidadrespuestaspositivas)
+        instance.cantidadrespuestasnegativas = validated_data.get("cantidadrespuestasnegativas", instance.cantidadrespuestasnegativas)
+        instance.cantidadencuestas = validated_data.get("cantidadencuestas", instance.cantidadencuestas)
+        instance.muestrapoblacional = validated_data.get("muestrapoblacional", instance.muestrapoblacional)
+        instance.poblaciontotal = validated_data.get("poblaciontotal", instance.poblaciontotal)
+        instance.cantidadcasasencuestadas = validated_data.get("cantidadcasasencuestadas", instance.cantidadcasasencuestadas)
+        instance.fechainiciocenso = instance.fechainiciocenso
+        instance.fechafincenso = validated_data.get("fechafincenso", instance.fechafincenso)
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
 class EncuestasinidetrabajadoresSerializer(serializers.ModelSerializer):
     class Meta:
         model = Encuestasinidetrabajadores
         fields = '__all__'
+    def update(self, instance, validated_data):
+        instance.casaid = validated_data.get("casaid", instance.casaid)
+        instance.censoid = validated_data.get("censoid", instance.censoid)
+        instance.investigadorid = validated_data.get("investigadorid", instance.investigadorid)
+        instance.fechainicio = instance.fechainicio
+        instance.fechafin = validated_data.get("fechafin", instance.fechafin)
+        instance.respuesta = instance.respuesta
+        instance.totalencuestados = instance.totalencuestados
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
         
 class EncuestasminedescolaresSerializer(serializers.ModelSerializer):   
     class Meta:
@@ -394,6 +481,25 @@ class InfraestructuraSerializer(serializers.ModelSerializer):
     class Meta:
         model = Infraestructuras
         fields = '__all__'
+    def create(self, validated_data):
+        departamento = Infraestructuras.objects.create(
+            materialcontruccionid = validated_data["materialcontruccionid"],
+            tipodetechoid = validated_data["tipodetechoid"],
+            tipodepisoid = validated_data["tipodepisoid"],
+            estado = 1
+        )
+        return departamento
+    def update(self, instance, validated_data):
+        instance.nombrematerialcontruccionid = validated_data.get("materialcontruccionid", instance.materialcontruccionid)
+        instance.tipodetechoid = validated_data.get("tipodetechoid", instance.tipodetechoid)
+        instance.estado = instance.estado
+        instance.tipodepisoid = validated_data.get("tipodepisoid", instance.tipodepisoid)
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
 
 class MunicipiosSerializer(serializers.ModelSerializer):
     class Meta:
@@ -406,6 +512,7 @@ class MunicipiosSerializer(serializers.ModelSerializer):
         municipio = Municipios.objects.create(
             nombre=validated_data["nombre"],
             cantidadbarrios = 0,
+            departamentoid = validated_data["departamentoid"],
             estado = 1
         )
         return municipio
@@ -424,7 +531,7 @@ class PersonasSerializer(serializers.ModelSerializer):
     class Meta:
         model = Personas
         fields = '__all__'  
-        
+    
         
     def create(self, validated_data):
         validacionesInidividualesIncercion.validacionesPersonas.valiExiste(validated_data)
@@ -484,13 +591,61 @@ class TiposDePisosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tiposdepisos
         fields = '__all__'
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.validacionesInfraestructura.tipodepiso.existe(validated_data)
+        tipopiso = Tiposdepisos.objects.create(
+            tipopiso = validated_data["tipopiso"],
+            estado = 1
+        )
+        return tipopiso
+    def update(self, instance, validated_data):
+        instance.tipopiso = validated_data.get("tipopiso", instance.tipopiso)
+        instance.estado = instance.estado
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
         
-class TiposDeTechosSeralizer(serializers.ModelSerializer):
+class TiposDeTechosSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tiposdetechos
         fields = '__all__'
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.validacionesInfraestructura.tipodetecho.existe(validated_data)
+        tipotecho = Tiposdetechos.objects.create(
+            tipodetecho = validated_data["tipodetecho"],
+            estado = 1
+        )
+        return tipotecho
+    def update(self, instance, validated_data):
+        instance.tipotecho = validated_data.get("tipotecho", instance.tipotecho)
+        instance.estado = instance.estado
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance
         
 class MaterialesDeConstruccionesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Materialesconstrucciones
         fields = '__all__'
+    def create(self, validated_data):
+        validacionesInidividualesIncercion.validacionesInfraestructura.materialesContruccion.existe(validated_data)
+        material =  Materialesconstrucciones.objects.create(
+           materialcontruccion = validated_data["materialcontruccion"],
+           estado = 1 
+        )
+        return material
+    def update(self, instance, validated_data):
+        instance.materialcontruccion = validated_data["materialcontruccion", instance.materialcontruccion]
+        instance.estado = instance.estado
+        instance.save()
+        return instance
+    def delete(self, instance):
+        instance.estado = 0
+        instance.save()
+        return instance

@@ -36,11 +36,15 @@ router.register(r'relacionesParentescos', RelacionesParentescosViewSet)
 router.register(r'tiposDeEducaciones', TiposDeEducacionesViewSet)
 router.register(r'tiposDeEducacionesDocentes', TiposDeEducacionesDocentesViewSet)
 router.register(r'tutores', TutoresViewSet)
+router.register(r'contactosEmpadronados', ContactosEmpadronadosViewSet)
+router.register(r'tiposDePisos', TiposDePisosViewSet)
+router.register(r'tiposDeTechos', TiposDeTechosViewSet)
+router.register(r'materialesConstrucciones', MaterialesConstruccionViewSet)
 
 
 urlpatterns = [
 # Tus endpoints
-    path('censo/', CensoCompletoINIDETrabajadoresViewSet.as_view()),
+    path('censoCompleto/', CensoCompletoINIDETrabajadoresViewSet.as_view()),
 
     path('EncuestaCompleta/', EncuestaINIDETrabajadosCompletaViewSet.as_view()),
 

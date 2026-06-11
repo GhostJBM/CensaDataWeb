@@ -15,7 +15,7 @@ class AdministradoresViewSet(viewsets.ModelViewSet):
     queryset = Administradores.objects.all()
     serializer_class = AdministradoresSerializer
     
-    def get(self, request):
+    def list(self, request, *args, **kwargs):
         user = Cuentasinvestigadoresadmin.objects.filter(estado = 1).all()
         
         authentication_classes = [AllowAny]
@@ -101,6 +101,9 @@ class meViewSet(APIView):
 class InvestigadoresViewSet(viewsets.ModelViewSet):
     queryset = Investigadores.objects.all()
     serializer_class = InvestigadoresSerializer
+    def list(self, request, *args, **kwargs):
+        user = Investigadores.objects.filter(estado = 1).all()
+        return Response({"data": user.all().values("id","primernombre","segundonombre","primerapellido","segundoapellido", "edad", "sexo","cuentaid", "administradorid")})
     def create(self, request):
         if not request.data:
             return Response({
@@ -205,6 +208,9 @@ class añosEscolaresDocentesViewSet(viewsets.ModelViewSet):
 class BarriosViewSet(viewsets.ModelViewSet):
     queryset = Barrios.objects.all()
     serializer_class = BarriosSerializer
+    def list(self, request, *args, **kwargs):
+            barrios= Barrios.objects.filter(estado = 1).all()
+            return Response({"data": barrios.all().values("id","nombre", "municipioid", "cantidadcasas")})
     def create(self, request):
         if not request.data:
             return Response({
@@ -268,6 +274,53 @@ class BarriosViewSet(viewsets.ModelViewSet):
     
 class CasasViewSet(viewsets.ModelViewSet):
     queryset = Casas.objects.all()
+    def list(self, request, *args, **kwargs):
+            casas = Casas.objects.filter(estado = 1).all()
+            return Response({"data": casas.all().values("id","numcasa", "barrioid", "cantidadhombres", "cantidadmujeres", "infraestructuraid", "serviciodeagua", "serviciodeenergia", "ingresofamiliar")})
+    def create(self, request):
+        if not request.data:
+            return Response({
+                "message":"No hay contenido"
+            },
+            status=status.HTTP_204_NO_CONTENT
+            )
+            
+        return Response({
+            "message":"Este metodo es inaccesible desde este lugar"}, status=status.HTTP_400_BAD_REQUEST)
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        serializer = self.get_serializer()
+        serializer.delete(instance)
+        return Response({f"message":"Se elimino el registro"})
+            
     serializer_class = CasasSerializer
     authentication_classes = [JWTAuthentication]
     
@@ -300,11 +353,138 @@ class ContactosInvestigadoresViewSet(viewsets.ModelViewSet):
     queryset = Contactosinvestigadores.objects.all()
     serializer_class = ContactosinvestigadoresSerializer
     authentication_classes = [JWTAuthentication]
-    
+    def list(self, request, *args, **kwargs):
+        contactos = Contactosinvestigadores.objects.filter(estado = 1).all()
+        return Response({"data": contactos.all().values("id","contacto", "investigadorid")})
+    def create(self, request):
+        if not request.data:
+            return Response({
+                "message":"No hay contenido"
+            },
+            status=status.HTTP_204_NO_CONTENT
+            )
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            return Response({
+                "message":"Contacto creado con exito"
+            }, status=status.HTTP_201_CREATED)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        serializer = self.get_serializer()
+        serializer.delete(instance)
+        return Response({f"message":"Se elimino el registro"})
+
+class ContactosEmpadronadosViewSet(viewsets.ModelViewSet):
+    queryset = Contactosempadronados.objects.all()
+    serializer_class = ContactosEmpadronadosSerializer 
+    authentication_classes = [JWTAuthentication]
+    def list(self, request, *args, **kwargs):
+        contactos = Contactosempadronados.objects.filter(estado = 1).all()
+        return Response({"data": contactos.all().values("id","contacto", "empadronadoid")})
+    def create(self, request):
+        if not request.data:
+            return Response({
+                "message":"No hay contenido"
+            },
+            status=status.HTTP_204_NO_CONTENT
+            )
+        
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            return Response({
+                "message":"contacto creado con exito"
+            }, status=status.HTTP_201_CREATED)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )  
+        
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        serializer = self.get_serializer()
+        serializer.delete(instance)
+        return Response({f"message":"Se elimino el registro"})
 
 class DepartamentosViewSet(viewsets.ModelViewSet):
     queryset = Departamentos.objects.all()
     serializer_class = DepartamentosSerializer
+    def list(self, request, *args, **kwargs):
+        departamentos = Departamentos.objects.filter(estado = 1).all()
+        return Response({"data": departamentos.all().values("id","nombre", "cantidadmunicipios")})
     def create(self, request):
         if not request.data:
             return Response({
@@ -384,7 +564,65 @@ class EmpadronadosViewSet(viewsets.ModelViewSet):
     queryset = Empadronados.objects.all()
     serializer_class = EmpadronadosSerializer
     authentication_classes = [JWTAuthentication]
-    
+    def list(self, request, *args, **kwargs):
+        empadronados = Empadronados.objects.filter(estado = 1).all()
+        return Response({"data": empadronados.all().values("id","personaid","relacionid", "numerocedula","empleoid", "estadocivilid", "niveleducativoid", "casaid", "ingresopersonal")})
+    def create(self, request):
+        if not request.data:
+            return Response({
+                "message":"No hay contenido"
+            },
+            status=status.HTTP_204_NO_CONTENT
+            )
+            
+       
+        try:
+            
+
+            return Response({
+                "message":"El metodo es inaccesible desde este lugar"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        serializer = self.get_serializer()
+        serializer.delete(instance)
+        return Response({"message":"El empadronado se ha eliminado"})
 class EmpleosViewSet(viewsets.ModelViewSet):
     queryset = Empleos.objects.all()
     serializer_class = EmpleosSerializer
@@ -451,12 +689,128 @@ class CensosViewSet(viewsets.ModelViewSet):
     queryset = Censos.objects.all()
     serializer_class = CensosSerializer
     authentication_classes = [JWTAuthentication]
-    
+    def list(self, request, *args, **kwargs):
+        censos = Censos.objects.filter(estado = 1).all()
+        return Response({"data": censos.all().values("id","nombrecenso", "fechainiciocenso", "fechafincenso", "cantidadencuestados", "cantidadrespuestaspositivas","cantidadrespuestasnegativas","cantidadencuestas","muestrapoblacional","poblaciontotal","cantidadcasasencuestadas")})
+    def create(self, request):
+        if not request.data:
+            return Response({
+                "message":"No hay contenido"
+            },
+            status=status.HTTP_204_NO_CONTENT
+            )
+            
+       
+        try:
+            
+
+            return Response({
+                "message":"El metodo es inaccesible desde este lugar"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        serializer = self.get_serializer()
+        serializer.delete(instance)
+        return Response({"message":"El Censo fue eliminado"})
 class EncuestasInideTrabajadoresViewSet(viewsets.ModelViewSet):
     queryset = Encuestasinidetrabajadores.objects.all()
     serializer_class = EncuestasinidetrabajadoresSerializer
     authentication_classes = [JWTAuthentication]
-    
+    def list(self, request, *args, **kwargs):
+        encuestas = Encuestasinidetrabajadores.objects.filter(estado = 1).all()
+        return Response({"data": encuestas.all().values("id","censoid","casaid", "investigadorid","fechainicio", "fechafin", "respuesta", "totalencuestados")})
+    def create(self, request):
+        if not request.data:
+            return Response({
+                "message":"No hay contenido"
+            },
+            status=status.HTTP_204_NO_CONTENT
+            )
+            
+       
+        try:
+            
+
+            return Response({
+                "message":"El metodo es inaccesible desde este lugar"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        serializer = self.get_serializer()
+        serializer.delete(instance)
+        return Response({"message":"La encuesta fue eliminada"})
 class EncuestasMinedEscolaresViewSet(viewsets.ModelViewSet):
     queryset = Encuestasminedescolares.objects.all()
     serializer_class = EncuestasminedescolaresSerializer
@@ -465,6 +819,9 @@ class EncuestasMinedEscolaresViewSet(viewsets.ModelViewSet):
 class EstadosCivilesViewSet(viewsets.ModelViewSet):
     queryset = Estadosciviles.objects.all()
     serializer_class = EstadoscivilesSerializer
+    def list(self, request, *args, **kwargs):
+        estados = Estadosciviles.objects.filter(estado = 1).all()
+        return Response({"data": estados.all().values("id","estadocivil")})
     def create(self, request):
         if not request.data:
             return Response({
@@ -530,13 +887,12 @@ class EstudiantesViewSet(viewsets.ModelViewSet):
     serializer_class = EstudiantesSerializer
     authentication_classes = [JWTAuthentication]
     
-class InfraestructurasViewSet(viewsets.ModelViewSet):
-    queryset = Infraestructuras.objects.all()
-    serializer_class = InfraestructuraSerializer
-    authentication_classes=[JWTAuthentication]
 class MunicipiosViewSet(viewsets.ModelViewSet):
     queryset = Municipios.objects.all()
     serializer_class = MunicipiosSerializer
+    def list(self, request, *args, **kwargs):
+        municipios = Municipios.objects.filter(estado = 1).all()
+        return Response({"data": municipios.all().values("id","nombre", "departamentoid", "cantidadbarrios")})
     def create(self, request):
         if not request.data:
             return Response({
@@ -601,7 +957,9 @@ class MunicipiosViewSet(viewsets.ModelViewSet):
 class PersonasViewSet(viewsets.ModelViewSet):
     queryset = Personas.objects.all()
     serializer_class = PersonasSerializer
-    
+    def list(self, request, *args, **kwargs):
+        personas = Personas.objects.filter(estado = 1).all()
+        return Response({"data": personas.all().values("id","primernombre","segundonombre","primerapellido","segundoapellido", "edad", "sexo")})
     def create(self, request):
         if not request.data:
             return Response({
@@ -609,12 +967,8 @@ class PersonasViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_204_NO_CONTENT
             )
-            
-        serializer = self.get_serializer(data=request.data)
-        try:
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
 
+        try:
             return Response({
                 "message":"Este metodo es inaccesible desde este lugar"
             }, status=status.HTTP_201_CREATED)
@@ -665,6 +1019,9 @@ class PersonasViewSet(viewsets.ModelViewSet):
 class RelacionesParentescosViewSet(viewsets.ModelViewSet):
     queryset = Relacionesparentescos.objects.all()
     serializer_class = RelacionesparentescosSerializer
+    def list(self, request, *args, **kwargs):
+        relaciones = Relacionesparentescos.objects.filter(estado = 1).all()
+        return Response({"data": relaciones.all().values("id","relacion")})
     def create(self, request):
         if not request.data:
             return Response({
@@ -729,6 +1086,9 @@ class RelacionesParentescosViewSet(viewsets.ModelViewSet):
 class NivelesEduactivosViewSet(viewsets.ModelViewSet):
     queryset = Niveleseducativos.objects.all()
     serializer_class = NivelesEduactivosSerializer
+    def list(self, request, *args, **kwargs):
+        niveles = Niveleseducativos.objects.filter(estado = 1).all()
+        return Response({"data": niveles.all().values("id","niveleducativo","grado")})
     def create(self, request):
         if not request.data:
             return Response({
@@ -788,6 +1148,265 @@ class NivelesEduactivosViewSet(viewsets.ModelViewSet):
         return Response({"message":"El nivel educativo fue eliminado"})
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAdminOrReadOnly]
+class InfraestructurasViewSet(viewsets.ModelViewSet):
+    queryset = Infraestructuras.objects.all()
+    serializer_class = InfraestructuraSerializer
+    authentication_classes = [JWTAuthentication]
+    def list(self, request, *args, **kwargs):
+        infraestructuras = Infraestructuras.objects.filter(estado = 1).all()
+        return Response({"data": infraestructuras.all().values("id","materialcontruccionid", "tipodetechoid","tipodepisoid")})
+    def create(self, request):
+        if not request.data:
+            return Response({
+                "message":"No hay contenido"
+            },
+            status=status.HTTP_204_NO_CONTENT
+            )
+            
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            return Response({
+                "message":"Infraestructura creada con exito"
+            }, status=status.HTTP_201_CREATED)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        serializer = self.get_serializer()
+        serializer.delete(instance)
+        return Response({"message":"La infraestructura fue eliminada"})
+class MaterialesConstruccionViewSet(viewsets.ModelViewSet):
+    queryset = Materialesconstrucciones.objects.all()
+    serializer_class = MaterialesDeConstruccionesSerializer
+    authentication_classes = [JWTAuthentication]
+    
+    def list(self, request, *args, **kwargs):
+        materiales = Materialesconstrucciones.objects.filter(estado = 1).all()
+        return Response({"data": materiales.all().values("id","materialcontruccion")})
+    def create(self, request):
+        if not request.data:
+            return Response({
+                "message":"No hay contenido"
+            },
+            status=status.HTTP_204_NO_CONTENT
+            )
+            
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            return Response({
+                "message":"Material de construcción creado con exito"
+            }, status=status.HTTP_201_CREATED)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        serializer = self.get_serializer()
+        serializer.delete(instance)
+        return Response({"message":"El material de construcción fue eliminado"})
+class TiposDePisosViewSet(viewsets.ModelViewSet):
+    queryset = Tiposdepisos.objects.all()
+    serializer_class = TiposDePisosSerializer 
+    authentication_classes = [JWTAuthentication]
+    
+    def list(self, request, *args, **kwargs):
+        pisos = Tiposdepisos.objects.filter(estado = 1).all()
+        return Response({"data": pisos.all().values("id","tipodepiso")})
+    def create(self, request):
+        if not request.data:
+            return Response({
+                "message":"No hay contenido"
+            },
+            status=status.HTTP_204_NO_CONTENT
+            )
+            
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            return Response({
+                "message":"Tipo de piso creado con exito"
+            }, status=status.HTTP_201_CREATED)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        serializer = self.get_serializer()
+        serializer.delete(instance)
+        return Response({"message":"El tipo de piso fue eliminado"})
+class TiposDeTechosViewSet(viewsets.ModelViewSet):
+    queryset = Tiposdetechos.objects.all()
+    serializer_class = TiposDeTechosSerializer
+    authentication_classes = [JWTAuthentication]
+    
+    def list(self, request, *args, **kwargs):
+        techos = Tiposdetechos.objects.filter(estado = 1).all()
+        return Response({"data": techos.all().values("id","tipodetecho")})
+    def create(self, request):
+        if not request.data:
+            return Response({
+                "message":"No hay contenido"
+            },
+            status=status.HTTP_204_NO_CONTENT
+            )
+            
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+
+            return Response({
+                "message":"Tipo de techo creado con exito"
+            }, status=status.HTTP_201_CREATED)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        
+        partial = kwargs.pop('partial', False)
+        
+        serializer = self.get_serializer(
+                    instance, 
+                    data=request.data, 
+                    partial=partial
+                )
+
+        try:
+            serializer.is_valid(raise_exception=True)
+            serializer.update(instance,serializer.validated_data)
+
+            return Response({
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        serializer = self.get_serializer()
+        serializer.delete(instance)
+        return Response({"message":"El tipo de techo fue eliminado"})
 class TiposDeEducacionesViewSet(viewsets.ModelViewSet):
     queryset = Tiposdeeducaciones.objects.all()
     serializer_class = TiposdeeducacionesSerializer

@@ -458,6 +458,43 @@ class validacionesInidividualesIncercion:
                 return admin
             except:
                 raise ExcepcionNegocio("El administrador no existe")
+        def contantoExistente(data):
+            try:
+                contacto = Contactosinvestigadores.objects.filter(contacto = data["contacto"], investigadorid_id = data["investigadorid"]).exists()
+                if contacto:
+                    raise ExcepcionNegocio("El contacto ya existe para este investigador")
+            except Exception as e:
+                raise ExcepcionNegocio(e)
+    class validacionesIndividualesEmpadronados:
+        def valiExisteContato(data):
+            try:
+                contacto = Contactosempadronados.objects.filter(contacto = data["contacto"], empadronadoid_id = data["empadronadoid"]).exists()
+                if contacto:
+                    raise ExcepcionNegocio("El contacto ya existe para este empadronado")
+            except Exception as e:
+                raise ExcepcionNegocio(e)
+    class validacionesInfraestructura:
+        class materialesContruccion:
+            def existe(data):
+                try:
+                    if Materialesconstrucciones.objects.filter(materialdecontruccion = data["materialdecontruccion"]):
+                        raise ExcepcionNegocio("El material ya existe")
+                except ValueError as e:
+                    raise ExcepcionNegocio(e)
+        class tipodepiso:
+            def existe(data):
+                try:
+                    if Tiposdepisos.objects.filter(tipopiso=data["tipodepiso"]):
+                        raise ExcepcionNegocio("el piso ya existe")
+                except ValueError as e:
+                    raise ExcepcionNegocio(e)
+        class tipodetecho:
+            def existe(data):
+                try:
+                    if Tiposdetechos.objects.filter(tipodetecho=data["tipodetecho"]):
+                        raise ExcepcionNegocio("el techo ya existe")
+                except ValueError as e:
+                    raise ExcepcionNegocio(e)
 
 
 class GetElement:
