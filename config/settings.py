@@ -83,16 +83,16 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 ##Cors settings
 
-#INSTALLED_APPS += [
-#'corsheaders']  
+INSTALLED_APPS += [
+'corsheaders']  
 
-#MIDDLEWARE = [
- #  'corsheaders.middleware.CorsMiddleware']+MIDDLEWARE
+MIDDLEWARE = [
+'corsheaders.middleware.CorsMiddleware']+MIDDLEWARE
 
-#CORS_ALLOW_ALL_ORIGINS = [
-#   'http://localhost:5173',
-#'https://censadata.vercel.app/',
-#]
+CORS_ALLOWED_ORIGINS = [
+'http://localhost:5173',
+'https://censadata.vercel.app',
+]
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
@@ -106,8 +106,8 @@ DATABASES = {
         'ENGINE': 'mssql',  
         'NAME': 'CensaData',      
         #'HOST': 'censadata-server.database.windows.net', 
-        #'HOST': 'host.docker.internal',
-        "HOST":"localhost\\SQLEXPRESS",        
+        'HOST': 'host.docker.internal',
+        #"HOST":"localhost\\SQLEXPRESS",        
         'USER':'UsuarioAdministrador',
         #"PASSWORD":'SqlLogin@3',  
         "PASSWORD":"123" ,
