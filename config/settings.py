@@ -83,15 +83,16 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 ##Cors settings
 
-#INSTALLED_APPS += [
- #  'corsheaders']  
+INSTALLED_APPS += [
+   'corsheaders']  
 
-#MIDDLEWARE = [
- #   'corsheaders.middleware.CorsMiddleware']+MIDDLEWARE
+MIDDLEWARE = [
+   'corsheaders.middleware.CorsMiddleware']+MIDDLEWARE
 
-#CORS_ALLOW_ALL_ORIGINS = [
- #  'http://localhost:5173',
-#]
+CORS_ALLOW_ALL_ORIGINS = [
+   'http://localhost:5173',
+   'https://censadata.vercel.app/',
+]
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
