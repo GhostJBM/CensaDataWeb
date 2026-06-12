@@ -20,7 +20,7 @@ class AdministradoresViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         user = Administradores.objects.filter(estado = 1).all()
         
-        return user.all().values("id","primernombre", "segundonombre", "primerapellido","segundoapellido","edad", "sexo","cuentaid")
+        return Response({"data":user.all().values("id","primernombre", "segundonombre", "primerapellido","segundoapellido","edad", "sexo","cuentaid")})
     def create(self, request):
         if not request.data:
             return Response({
