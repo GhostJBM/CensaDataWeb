@@ -18,10 +18,9 @@ class AdministradoresViewSet(viewsets.ModelViewSet):
     serializer_class = AdministradoresSerializer
     
     def list(self, request, *args, **kwargs):
-        user = Cuentasinvestigadoresadmin.objects.filter(estado = 1).all()
+        user = Administradores.objects.filter(estado = 1).all()
         
-        authentication_classes = [AllowAny]
-        permission_classes = [IsAuthenticated]
+        return user.all().values("id","primernombre", "segundonombre", "primerapellido","segundoapellido","edad", "sexo","cuentaid")
     def create(self, request):
         if not request.data:
             return Response({
