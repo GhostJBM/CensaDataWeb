@@ -47,6 +47,7 @@ router.register(r'DiscapacidadesPersonas', DiscapacidadesPersonasViewSet)
 urlpatterns = [
 # Tus endpoints
     path('censoCompleto/', CensoCompletoINIDETrabajadoresViewSet.as_view()),
+    
 
     path('EncuestaCompleta/', EncuestaINIDETrabajadosCompletaViewSet.as_view()),
 
@@ -56,4 +57,7 @@ urlpatterns = [
     path('recovery/request/', RecoveryPasswordView.as_view(), name="recovery-request"),
     path('recovery/verify/', VerificarPasswordView.as_view(), name="recovery-verify"),
     path('recovery/changePassword/', changePasswordView.as_view(), name="recovery-changePassword"),
+    
+    ## reportes y estadisticas
+    path('estadisticas/', EstadisticasINIDEView.as_view())
 ]

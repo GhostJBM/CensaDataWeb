@@ -1420,7 +1420,7 @@ class DiscapacidadesViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         discapacidad = Discapacidades.objects.filter(estado=1).all()
         return Response({
-            "data":discapacidad.values("id","discapacidad")
+            "data":discapacidad.all().values("id","discapacidad")
         }, status=status.HTTP_200_OK)
     def create(self, request):
         if not request.data:
@@ -1486,7 +1486,7 @@ class DiscapacidadesPersonasViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         discpersonas= Discapacidadespersonas.objects.filter(estado=1).all()
         return Response({
-            "data":discpersonas.values("id","discapacidadid","personaid")
+            "data":discpersonas.all().values("id","discapacidadid","personaid")
         }, status=status.HTTP_200_OK)
     def create(self, request):
         if not request.data:
@@ -1683,4 +1683,19 @@ class changePasswordView(APIView):
     permission_classes=[AllowAny]
 ## Views de reportes
 class EstadisticasINIDEView(APIView):
-    pass
+    def get(self, request):
+        tipo = request.query_params.get("tipo")
+        
+        if not tipo:
+            return Response({
+                "error":"Debe de haber un parametro"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        data = EstadisticasServicies.getGrafico(tipo=tipo)
+        if data is None:
+            raise ExcepcionNegocio(data)
+        return Response({
+            "data":data
+        }, status=status.HTTP_200_OK)
+        
+            
