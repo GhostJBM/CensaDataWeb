@@ -59,5 +59,7 @@ urlpatterns = [
     path('recovery/changePassword/', changePasswordView.as_view(), name="recovery-changePassword"),
     
     ## reportes y estadisticas
-    path('estadisticas/', EstadisticasINIDEView.as_view())
+    path('estadisticas/', EstadisticasINIDEView.as_view()),
+    path("reportes/pdf/", ReportesPDFview.as_view()),
+    path("reportes/", ReportesINIDEView.as_view())
 ]

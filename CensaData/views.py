@@ -10,6 +10,8 @@ from .services import *
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.shortcuts import get_object_or_404
+from django.http import FileResponse
 
 class AdministradoresViewSet(viewsets.ModelViewSet):
     queryset = Administradores.objects.all()
@@ -1698,4 +1700,54 @@ class EstadisticasINIDEView(APIView):
             "data":data
         }, status=status.HTTP_200_OK)
         
+    permission_classes = [IsAdminOrReadOnly]
+class ReportesINIDEView(APIView):
+    def post(self, request):
+        if not request.data :
+            return Response({
+                "message":"datos faltantes"
+            }, status=status.HTTP_204_NO_CONTENT)
             
+        data = request.data
+        user = request.user
+        
+        user = Administradores.objects.filter(cuentaid=user.id).first() 
+        try:
+            encuesta = ReportesService.createReporte(user,data)
+            return Response(
+                {
+                    "message":"Reporte creado con exito"
+                    
+                },
+                status=status.HTTP_201_CREATED
+            )
+        except ExcepcionNegocio as e:
+            return Response(
+                {
+                    "error":str(e),
+                    
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdminOrReadOnly]
+
+class ReportesPDFview(APIView):
+    def get(self, request):
+        tipo = request.query_params.get("tiporeporte")
+        
+        report = Reportes.objects.filter(estado = 1, tiporeporte=tipo).first()
+        try:
+            if report.tiporeporte != "Completo":
+                raise ExcepcionNegocio("No existe")
+            pdf = ReportesService.generarPDF.generarReporteCompleto()
+            
+            return FileResponse(
+                pdf,
+                as_attachment=True,
+                filename="ReporteGeneralCensadata.pdf"
+                )
+        except ValueError as e:
+            raise Response({
+            "error":e
+        })

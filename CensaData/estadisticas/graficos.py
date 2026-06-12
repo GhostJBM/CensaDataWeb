@@ -12,7 +12,12 @@ class estadisticas:
             "TipodeGrafico":"bar",
             "titulo":"Ingreso Personal",
             "labels":conteo.index.tolist(),
-            "values":conteo.values.tolist()
+            "series":[
+                {
+                    "nombre":"Cantidad",
+                    "values": conteo.values.tolist()
+                }
+            ]
         }
         return data
     def estadisticasPorNivelEducativo(dfIngreso=df):
@@ -21,7 +26,10 @@ class estadisticas:
             "TipodeGrafico":"bar",
             "titulo":"Niveles educativos",
             "labels":conteo.index.tolist(),
-            "values":conteo.values.tolist()
+            "series":[{
+                "nombre":"Cantidad",
+                "values":conteo.values.tolist()
+            }]
         }
         return data
     def estadisticasPorEmpleo(dfIngreso=df):
@@ -30,7 +38,12 @@ class estadisticas:
             "TipodeGrafico":"bar",
             "titulo":"Empleos",
             "labels":conteo.index.tolist(),
-            "values":conteo.values.tolist()
+            "series":[
+                {
+                    "nombre":"Cantidad",
+                    "values":conteo.values.tolist()
+                }
+            ]
         }
         return data
     def estadisticasPorEstadoCivil(dfIngreso=df):
@@ -39,7 +52,10 @@ class estadisticas:
             "TipodeGrafico":"bar",
             "titulo":"Estados civiles",
             "labels":conteo.index.tolist(),
-            "values":conteo.values.tolist()
+            "series":[{
+                "nombre":"Cantidad",
+                "values":conteo.values.tolist()
+            }]
         }
         return data
     def estadisticasPorEdades(df=df):
@@ -64,7 +80,10 @@ class estadisticas:
             "tipo":"bar",
             "titulo":"Estadisticas por edad",
             "labels":conteo_edades.grupos_edad.tolist(),
-            "values":conteo_edades.Cantidad.tolist()
+            "series":[{
+                "nombre":"Cantidad",
+                "values":conteo_edades.Cantidad.tolist()
+            }]
         }
         return data
     def estadisticasIngresosNivelEducativo(df=df):
@@ -74,7 +93,10 @@ class estadisticas:
             "tipo":"bar",
             "titulo":"Cantidad de personas con ingresos por nivel educativo",
             "labels":ingresos_totales.NivelEducativo.tolist(),
-            "values":ingresos_totales.IngresoPersonal.tolist()
+            "series":[{
+                "nombre":"Cantidad",
+                "values":ingresos_totales.IngresoPersonal.tolist()
+            }]
         }
         return data
     def estadisticasDesempleados(df=df):
@@ -101,7 +123,10 @@ class estadisticas:
             "tipo":"bar",
             "titulo":"Grafico de desempleo total",
             "labels":conteo.grupos_trabajo.tolist(),
-            "values":conteo.Cantidad.tolist()
+            "series":[{
+                "nombre":"Cantidad",
+                "values":conteo.Cantidad.tolist()
+            }]
         }
         return data
     def estadisticasEstadosCivilEmpleoRelacion(df=df):
@@ -128,9 +153,12 @@ class estadisticas:
         )
         data = {
             "tipo":"bar",
-            "Titulo":"Cantidad de mujeres desempleadas por edad",
+            "titulo":"Cantidad de mujeres desempleadas por edad",
             "labels":labels,
-            "values":cantidad_de_Mujeres_Desempleadas_Por_edades.Cantidad.tolist()
+            "series":[{
+                "nombre":"Cantidad",
+                "values":cantidad_de_Mujeres_Desempleadas_Por_edades.Cantidad.tolist()
+            }]
         }
         return data
     def estadisticasEmpleadosMujeresEdad(df=df):
@@ -153,9 +181,12 @@ class estadisticas:
         )
         data = {
             "tipo":"bar",
-            "Titulo":"Cantidad de mujeres desempleadas por edad",
+            "titulo":"Cantidad de mujeres desempleadas por edad",
             "labels":labels,
-            "values":cantidad_de_Mujeres_Empleadas_Por_edades.Cantidad.tolist()
+            "series":[{
+                "nombre":"Cantidad",
+                "values":cantidad_de_Mujeres_Empleadas_Por_edades.Cantidad.tolist()
+            }]
         }
         return data
     def estadisticasDesempleadosHombresEdad(df=df):
@@ -178,9 +209,12 @@ class estadisticas:
         
         data = {
             "Tipo":"bar",
-            "Titulo":"Hombres desempleados por edad",
+            "titulo":"Hombres desempleados por edad",
             "labels":labels,
-            "values":cantidad_de_Hombres_Desempleados_Por_edades.Cantidad.tolist()
+            "series":[{
+                "nombre":"Cantidad",
+                "values":cantidad_de_Hombres_Desempleados_Por_edades.Cantidad.tolist()
+            }]
         }
         return data
     def estadisticasEmpleadosHombresEdad(df=df):
@@ -203,26 +237,38 @@ class estadisticas:
         
         data ={
             "tipo":"bar",
-            "Titulo":"Hombres emplados por edad",
+            "titulo":"Hombres emplados por edad",
             "labels":labels,
-            "values":cantidad_de_Hombres_Empleados_Por_edades.Cantidad.tolist()
+            "series":[{
+                "nombre":"Cantidad",
+                "values":cantidad_de_Hombres_Empleados_Por_edades.Cantidad.tolist()
+            }]
         }
         return data
     def estadisticasPersonasIngresosBarrios(df=df):
         df_barrios = (
-            df.groupby('barrio')
-            .agg(
-                PersonasBarrio=('IngresoPersonal', 'count'),
-                IngresoPromedio=('IngresoPersonal', 'mean')
-            )
-                .reset_index())
-        data ={
-            "Tipo":"bar",
-            "Titulo":"Cantidad de personas por ingresos en los barrios",
-            "labelsX":df_barrios.barrio.tolist(),
-            "ValuesPersonas":df_barrios.PersonasBarrio.tolist(),
-            "valuesPromedio":df_barrios.IngresoPromedio.tolist()
-        }
-        
-        return data
+        df.groupby('barrio')
+        .agg(
+            PersonasBarrio=('IngresoPersonal', 'count'),
+            IngresoPromedio=('IngresoPersonal', 'mean')
+        )
+        .reset_index()
+        )
 
+        data = {
+            "tipo": "bar",
+            "titulo": "Cantidad de personas e ingreso promedio por barrio",
+            "labels": df_barrios["barrio"].tolist(),
+            "series": [
+                {
+                    "nombre": "Personas",
+                    "values": df_barrios["PersonasBarrio"].tolist()
+                },
+                {
+                    "nombre": "Ingreso Promedio",
+                    "values": df_barrios["IngresoPromedio"].round(2).tolist()
+                }
+            ]
+        }       
+
+        return data

@@ -10,6 +10,12 @@ from datetime import datetime
 from django.core.mail import send_mail
 import math, secrets
 from .estadisticas.graficos import estadisticas
+from io import BytesIO
+from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, PageBreak, Image)
+from reportlab.lib.styles import getSampleStyleSheet
+import matplotlib 
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 ##Clase de excepciones
 class ExcepcionNegocio(Exception):
@@ -527,7 +533,117 @@ class EstadisticasServicies:
         return funcion()
 
 class ReportesService:
-    pass
+    def existe(data, user):
+        if Reportes.objects.filter(tiporeporte=data["tiporeporte"], administradorid=user):
+            return ExcepcionNegocio("El reporte ya existe")
+        return True
+    def createReporte(user, data):
+        ReportesService.existe(data, user)
+        Reportes.objects.create(
+            tiporeporte = data["tiporeporte"],
+            espublico = 0,
+            estado = 1,
+            administradorid = user
+        )
+    class generarPDF:
+        @staticmethod
+        def generarReporteCompleto():
+
+            buffer = BytesIO()
+            doc = SimpleDocTemplate(buffer)
+
+            styles = getSampleStyleSheet()
+            elementos = []
+
+            elementos.append(
+                Paragraph(
+                "Reporte de estadisticas de Censadata",
+                styles["Title"]
+                )
+            )
+
+            elementos.append(Spacer(1, 20))
+
+            elementos.append(
+                Paragraph(
+                    "Reporte general",
+                    styles["Heading1"]
+                )
+            )
+
+            elementos.append(Spacer(1, 20))
+
+            tipos = [
+                "estadisticas por ingreso",
+                "estadisticas por nivel educativo",
+                "estadisticas por empleo",
+                "estadisticas por estado civil",
+                "estadisticas por edades",
+                "estadisticas por Ingresos basados en el nivel educativo",
+                "estadisticas desemplados general",
+                "estadisticas desempleadas mujeres por edad",
+                "estadisticas empladas mujueres por edad",
+                "estadisticas desempleados hombres por edad",
+                "estadisticas empleados hombres por edad",
+                "estadisticas ingresos de personas por barrios"
+            ]
+
+            for tipo in tipos:
+
+                grafico = EstadisticasServicies.getGrafico(tipo)
+
+                if not grafico:
+                    continue
+
+
+                elementos.append(
+                Paragraph(
+                        grafico.get("titulo", tipo),
+                        styles["Heading2"]
+                    )
+                )
+
+                elementos.append(Spacer(1, 10))
+
+                labels = grafico.get("labels", [])
+
+                for serie in grafico.get("series", []):
+
+                    elementos.append(
+                        Paragraph(
+                            serie.get("nombre", "Serie"),
+                            styles["Heading3"]
+                        )
+                    )
+
+                    values = serie.get("values", [])
+
+                    fig, ax = plt.subplots()
+
+                    ax.bar(labels, values)
+
+                    ax.set_title(serie.get("nombre", grafico.get("titulo", "")))
+                    ax.set_xlabel("Categorías")
+                    ax.set_ylabel("Valores")
+
+                    img_buffer = BytesIO()
+                    plt.xticks(rotation=45, ha="right")
+                    plt.tight_layout()
+                    plt.savefig(img_buffer, format="png", dpi=150)
+                    plt.close(fig)
+
+                    img_buffer.seek(0)
+
+                    elementos.append(Image(img_buffer, width=450, height=250))
+
+                    elementos.append(Spacer(1, 15))
+
+                elementos.append(Spacer(1, 20))
+
+            doc.build(elementos)
+            buffer.seek(0)
+
+            return buffer
 
 class RecoveryPasswordService:
     @staticmethod
@@ -598,6 +714,6 @@ class RecoveryPasswordService:
         
         recovery.delete()
         
-        return True
+        return True 
     
     
