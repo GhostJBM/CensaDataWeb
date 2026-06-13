@@ -5,3 +5,7 @@ __pycache__
 DB
 
 .env
+
+/test
+
+pytest.ini
