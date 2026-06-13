@@ -512,18 +512,18 @@ class validacionesInidividualesIncercion:
 
 class EstadisticasServicies:
     GRF = {
-        "estadisticas por ingreso":estadisticas.estadisticasPorIngreso(),
-        "estadisticas por nivel educativo":estadisticas.estadisticasPorNivelEducativo(),
-        "estadisticas por empleo":estadisticas.estadisticasPorEmpleo(),
-        "estadisticas por estado civil":estadisticas.estadisticasPorEstadoCivil(),
-        "estadisticas por edades":estadisticas.estadisticasPorEdades(),
-        "estadisticas por Ingresos basados en el nivel educativo":estadisticas.estadisticasIngresosNivelEducativo(),
-        "estadisticas desemplados general":estadisticas.estadisticasDesempleados(),
-        "estadisticas desempleadas mujeres por edad":estadisticas.estadisticaDesempleadosMujeresEdad(),
-        "estadisticas empladas mujueres por edad":estadisticas.estadisticasEmpleadosMujeresEdad(),
-        "estadisticas desempleados hombres por edad":estadisticas.estadisticasDesempleadosHombresEdad(),
-        "estadisticas empleados hombres por edad":estadisticas.estadisticasEmpleadosHombresEdad(),
-        "estadisticas ingresos de personas por barrios":estadisticas.estadisticasPersonasIngresosBarrios()
+        "estadisticas por ingreso":estadisticas.estadisticasPorIngreso,
+        "estadisticas por nivel educativo":estadisticas.estadisticasPorNivelEducativo,
+        "estadisticas por empleo":estadisticas.estadisticasPorEmpleo,
+        "estadisticas por estado civil":estadisticas.estadisticasPorEstadoCivil,
+        "estadisticas por edades":estadisticas.estadisticasPorEdades,
+        "estadisticas por Ingresos basados en el nivel educativo":estadisticas.estadisticasIngresosNivelEducativo,
+        "estadisticas desemplados general":estadisticas.estadisticasDesempleados,
+        "estadisticas desempleadas mujeres por edad":estadisticas.estadisticaDesempleadosMujeresEdad,
+        "estadisticas empladas mujueres por edad":estadisticas.estadisticasEmpleadosMujeresEdad,
+        "estadisticas desempleados hombres por edad":estadisticas.estadisticasDesempleadosHombresEdad,
+        "estadisticas empleados hombres por edad":estadisticas.estadisticasEmpleadosHombresEdad,
+        "estadisticas ingresos de personas por barrios":estadisticas.estadisticasPersonasIngresosBarrios
     }
     def getGrafico(tipo, GRF = GRF):
         funcion = GRF.get(tipo)
