@@ -75,6 +75,7 @@ class BarriosSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         Barrio = Barrios.objects.get(id=instance.id)
         instance.nombre = validated_data.get("nombre", instance.nombre)
+        instance.municipioid = validated_data.get("municipioid", instance.municipioid)
         instance.cantidadcasas = Barrio.cantidadcasas
         instance.estado = instance.estado
         
@@ -309,7 +310,7 @@ class EmpleosSerializer(serializers.ModelSerializer):
         validacionesInidividualesIncercion.validacionesEmpleos.valiExiste(validated_data)
         Empleo = Empleos.objects.create(
             empleo = validated_data["empleo"],
-            estad0  = 1
+            estado  = 1
         )
         return Empleo
     def update(self, instance, validated_data):
@@ -401,13 +402,13 @@ class NivelesEduactivosSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validacionesInidividualesIncercion.validacionesNivelesEducativos.valiExiste(validated_data)
         nivel = Niveleseducativos.objects.create(
-            niveleducativo = validated_data["nivelEducativo"],
+            niveleducativo = validated_data["niveleducativo"],
             grado = validated_data["grado"],
             estado = 1
-        )
+        ) 
         return nivel
     def update(self, instance, validated_data):
-        instance.niveleducativo = validated_data.get("nivelEducativo", instance.niveleducativo)
+        instance.niveleducativo = validated_data.get("niveleducativo", instance.niveleducativo)
         instance.grado = validated_data.get("grado", instance.grado)
         instance.estado = instance.estado
         instance.save()
@@ -621,7 +622,7 @@ class TiposDeTechosSerializer(serializers.ModelSerializer):
         )
         return tipotecho
     def update(self, instance, validated_data):
-        instance.tipotecho = validated_data.get("tipotecho", instance.tipotecho)
+        instance.tipotecho = validated_data.get("tipodetecho", instance.tipotecho)
         instance.estado = instance.estado
         instance.save()
         return instance

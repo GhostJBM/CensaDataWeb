@@ -498,7 +498,7 @@ class validacionesInidividualesIncercion:
         class tipodetecho:
             def existe(data):
                 try:
-                    if Tiposdetechos.objects.filter(tipodetecho=data["tipotecho"]):
+                    if Tiposdetechos.objects.filter(tipodetecho=data["tipodetecho"]):
                         raise ExcepcionNegocio("el techo ya existe")
                 except ValueError as e:
                     raise ExcepcionNegocio(e)
