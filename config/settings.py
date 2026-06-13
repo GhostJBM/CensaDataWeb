@@ -12,10 +12,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+load_dotenv(BASE_DIR / ".env")
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Quick-start development settings - unsuitable for production
@@ -105,12 +106,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',  
         'NAME': 'CensaData',      
-        'HOST': 'censadata-server.database.windows.net', 
-        #'HOST': 'host.docker.internal',
-        #"HOST":"localhost\\SQLEXPRESS",        
-        'USER':'UsuarioAdministrador',
-        "PASSWORD":'SqlLogin@3',  
-        #"PASSWORD":"123" ,
+        'HOST': os.getenv("HOST_NAME"),        
+        'USER': os.getenv("DB_USER_NAME"),
+        "PASSWORD":os.getenv("DB_PASSWORD"),  
         'PORT': '1433',               
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',

@@ -518,9 +518,9 @@ class EstadisticasServicies:
         "estadisticas por estado civil":estadisticas.estadisticasPorEstadoCivil,
         "estadisticas por edades":estadisticas.estadisticasPorEdades,
         "estadisticas por Ingresos basados en el nivel educativo":estadisticas.estadisticasIngresosNivelEducativo,
-        "estadisticas desemplados general":estadisticas.estadisticasDesempleados,
+        "estadisticas desempleados general":estadisticas.estadisticasDesempleados,
         "estadisticas desempleadas mujeres por edad":estadisticas.estadisticaDesempleadosMujeresEdad,
-        "estadisticas empladas mujueres por edad":estadisticas.estadisticasEmpleadosMujeresEdad,
+        "estadisticas empleadas mujeres por edad":estadisticas.estadisticasEmpleadosMujeresEdad,
         "estadisticas desempleados hombres por edad":estadisticas.estadisticasDesempleadosHombresEdad,
         "estadisticas empleados hombres por edad":estadisticas.estadisticasEmpleadosHombresEdad,
         "estadisticas ingresos de personas por barrios":estadisticas.estadisticasPersonasIngresosBarrios
