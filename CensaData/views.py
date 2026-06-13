@@ -1614,7 +1614,7 @@ class EncuestaINIDETrabajadosCompletaViewSet(APIView):
     
 class RecoveryPasswordView(APIView):
     def post(self, request):
-        email = request.data.get("Correo")
+        email = request.data.get("correo")
         
         user = Cuentasinvestigadoresadmin.objects.filter(
             Correo = email
