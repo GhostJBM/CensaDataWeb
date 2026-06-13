@@ -1620,10 +1620,10 @@ class RecoveryPasswordView(APIView):
             Correo = email
         ).first()
         
-        if not user:
-            return Response({
-                "message":"Si existe la cuenta se enviará un correo"
-            })
+        #if not user:
+        #    return Response({
+         #       "message":"Si existe la cuenta se enviará un correo"
+          #  })
             
         code = RecoveryPasswordService.create_recoveryCode(
             user
