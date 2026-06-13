@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import *
 from .serializers import *
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .permissions import IsAdminOrReadOnly
+from .permissions import IsAdminOrReadOnly, IsAdmin
 from .services import *
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
@@ -79,7 +79,7 @@ class AdministradoresViewSet(viewsets.ModelViewSet):
         serializer.delete(instance)
         return Response({"message":"El Administrador se elimino"})
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdmin]
 
 class meViewSet(APIView):
     def get(self, request):
@@ -165,14 +165,13 @@ class InvestigadoresViewSet(viewsets.ModelViewSet):
         return Response({"message":"El investigador se elimino"})
         
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdmin]
     
 class CuentasInvestigadoresViewSet(viewsets.ModelViewSet):
     queryset = Cuentasinvestigadoresadmin.objects.all()
     serializer_class = CuentaInvestigadorCreationSerializer
-    
+    permission_classes = [IsAdmin]
     def list(self, request, *args, **kwargs):
-
             user = Cuentasinvestigadoresadmin.objects.filter(estado = 1).all()
             return Response({"data": user.all().values("id","usuario","Correo","Role")})
     def get_serializer_class(self):
@@ -181,16 +180,8 @@ class CuentasInvestigadoresViewSet(viewsets.ModelViewSet):
         return Cuentasinvestigadoresadmin
 
     
-    def get_permissions(self):
-        if self.action == 'create': # 'create' es el método POST
-            permission_classes = [AllowAny]
-        else:
-            
-            permission_classes = [IsAuthenticated]
-            
-        return [permission() for permission in permission_classes]
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdmin]
     
 class CustomeTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomeTokenObtainSerializer
@@ -628,6 +619,8 @@ class EmpadronadosViewSet(viewsets.ModelViewSet):
 class EmpleosViewSet(viewsets.ModelViewSet):
     queryset = Empleos.objects.all()
     serializer_class = EmpleosSerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdminOrReadOnly]
     def list(self, request, *args, **kwargs):
         empleo = Empleos.objects.filter(estado = 1).all()
         return Response({
@@ -689,8 +682,7 @@ class EmpleosViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer()
         serializer.delete(instance)
         return Response({"message":"El empleo ha sido eliminado"})
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAdminOrReadOnly]
+
     
 class CensosViewSet(viewsets.ModelViewSet):
     queryset = Censos.objects.all()
@@ -1291,7 +1283,7 @@ class TiposDePisosViewSet(viewsets.ModelViewSet):
     
     def list(self, request, *args, **kwargs):
         pisos = Tiposdepisos.objects.filter(estado = 1).all()
-        return Response({"data": pisos.all().values("id","tipodepiso")})
+        return Response({"data": pisos.all().values("id","tipopiso")})
     def create(self, request):
         if not request.data:
             return Response({
@@ -1699,7 +1691,7 @@ class EstadisticasINIDEView(APIView):
             "data":data
         }, status=status.HTTP_200_OK)
         
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdmin]
 class ReportesINIDEView(APIView):
     def post(self, request):
         if not request.data :
@@ -1729,7 +1721,7 @@ class ReportesINIDEView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdmin]
 
 class ReportesPDFview(APIView):
     def get(self, request):
@@ -1750,3 +1742,5 @@ class ReportesPDFview(APIView):
             raise Response({
             "error":e
         })
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdmin]

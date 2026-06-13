@@ -484,21 +484,21 @@ class validacionesInidividualesIncercion:
         class materialesContruccion:
             def existe(data):
                 try:
-                    if Materialesconstrucciones.objects.filter(materialdecontruccion = data["materialdecontruccion"]):
+                    if Materialesconstrucciones.objects.filter(materialcontruccion = data["materialcontruccion"]):
                         raise ExcepcionNegocio("El material ya existe")
                 except ValueError as e:
                     raise ExcepcionNegocio(e)
         class tipodepiso:
             def existe(data):
                 try:
-                    if Tiposdepisos.objects.filter(tipopiso=data["tipodepiso"]):
+                    if Tiposdepisos.objects.filter(tipopiso=data["tipopiso"]):
                         raise ExcepcionNegocio("el piso ya existe")
                 except ValueError as e:
                     raise ExcepcionNegocio(e)
         class tipodetecho:
             def existe(data):
                 try:
-                    if Tiposdetechos.objects.filter(tipodetecho=data["tipodetecho"]):
+                    if Tiposdetechos.objects.filter(tipodetecho=data["tipotecho"]):
                         raise ExcepcionNegocio("el techo ya existe")
                 except ValueError as e:
                     raise ExcepcionNegocio(e)
@@ -512,18 +512,18 @@ class validacionesInidividualesIncercion:
 
 class EstadisticasServicies:
     GRF = {
-        "estadisticas por ingreso":estadisticas.estadisticasPorIngreso,
-        "estadisticas por nivel educativo":estadisticas.estadisticasPorNivelEducativo,
-        "estadisticas por empleo":estadisticas.estadisticasPorEmpleo,
-        "estadisticas por estado civil":estadisticas.estadisticasPorEstadoCivil,
-        "estadisticas por edades":estadisticas.estadisticasPorEdades,
-        "estadisticas por Ingresos basados en el nivel educativo":estadisticas.estadisticasIngresosNivelEducativo,
-        "estadisticas desemplados general":estadisticas.estadisticasDesempleados,
-        "estadisticas desempleadas mujeres por edad":estadisticas.estadisticaDesempleadosMujeresEdad,
-        "estadisticas empladas mujueres por edad":estadisticas.estadisticasEmpleadosMujeresEdad,
-        "estadisticas desempleados hombres por edad":estadisticas.estadisticasDesempleadosHombresEdad,
-        "estadisticas empleados hombres por edad":estadisticas.estadisticasEmpleadosHombresEdad,
-        "estadisticas ingresos de personas por barrios":estadisticas.estadisticasPersonasIngresosBarrios
+        "estadisticas por ingreso":estadisticas.estadisticasPorIngreso(),
+        "estadisticas por nivel educativo":estadisticas.estadisticasPorNivelEducativo(),
+        "estadisticas por empleo":estadisticas.estadisticasPorEmpleo(),
+        "estadisticas por estado civil":estadisticas.estadisticasPorEstadoCivil(),
+        "estadisticas por edades":estadisticas.estadisticasPorEdades(),
+        "estadisticas por Ingresos basados en el nivel educativo":estadisticas.estadisticasIngresosNivelEducativo(),
+        "estadisticas desemplados general":estadisticas.estadisticasDesempleados(),
+        "estadisticas desempleadas mujeres por edad":estadisticas.estadisticaDesempleadosMujeresEdad(),
+        "estadisticas empladas mujueres por edad":estadisticas.estadisticasEmpleadosMujeresEdad(),
+        "estadisticas desempleados hombres por edad":estadisticas.estadisticasDesempleadosHombresEdad(),
+        "estadisticas empleados hombres por edad":estadisticas.estadisticasEmpleadosHombresEdad(),
+        "estadisticas ingresos de personas por barrios":estadisticas.estadisticasPersonasIngresosBarrios()
     }
     def getGrafico(tipo, GRF = GRF):
         funcion = GRF.get(tipo)
@@ -555,10 +555,12 @@ class ReportesService:
             styles = getSampleStyleSheet()
             elementos = []
 
+
+
             elementos.append(
                 Paragraph(
-                "Reporte de estadisticas de Censadata",
-                styles["Title"]
+                    "CENSADATA",
+                    styles["Title"]
                 )
             )
 
@@ -566,81 +568,190 @@ class ReportesService:
 
             elementos.append(
                 Paragraph(
-                    "Reporte general",
+                    "Reporte Estadístico General",
                     styles["Heading1"]
                 )
             )
 
+            elementos.append(Spacer(1, 30))
+
+            elementos.append(
+                Paragraph(
+                """
+                    Este documento contiene información estadística
+                    obtenida a partir de los registros almacenados
+                    en la plataforma Censadata.
+                    """,
+                    styles["BodyText"]
+                    )
+            )
+
+            elementos.append(PageBreak())
+
+
+            elementos.append(
+                Paragraph(
+                    "Resumen Ejecutivo",
+                    styles["Heading1"]
+                )
+            )
+
+            elementos.append(Spacer(1, 10))
+
+            elementos.append(
+                    Paragraph(
+                        """
+                        El presente reporte agrupa indicadores
+                        demográficos, educativos, económicos y
+                        geográficos de la población registrada.
+                        """,
+                        styles["BodyText"]
+                    )
+            )
+
             elementos.append(Spacer(1, 20))
 
-            tipos = [
-                "estadisticas por ingreso",
-                "estadisticas por nivel educativo",
-                "estadisticas por empleo",
-                "estadisticas por estado civil",
-                "estadisticas por edades",
-                "estadisticas por Ingresos basados en el nivel educativo",
-                "estadisticas desemplados general",
-                "estadisticas desempleadas mujeres por edad",
-                "estadisticas empladas mujueres por edad",
-                "estadisticas desempleados hombres por edad",
-                "estadisticas empleados hombres por edad",
-                "estadisticas ingresos de personas por barrios"
-            ]
+            secciones = {
+                "Demografía": [
+                    "estadisticas por edades",
+                    "estadisticas por estado civil"
+                ],
 
-            for tipo in tipos:
+                "Educación": [
+                    "estadisticas por nivel educativo"
+                ],
 
-                grafico = EstadisticasServicies.getGrafico(tipo)
+                "Economía": [
+                    "estadisticas por ingreso",
+                    "estadisticas por empleo",
+                    "estadisticas por Ingresos basados en el nivel educativo",
+                    "estadisticas desemplados general",
+                    "estadisticas desempleadas mujeres por edad",
+                    "estadisticas empladas mujueres por edad",
+                    "estadisticas desempleados hombres por edad",
+                    "estadisticas empleados hombres por edad"
+                ],
 
-                if not grafico:
-                    continue
+                "Distribución Geográfica": [
+                    "estadisticas ingresos de personas por barrios"
+                ]
+            }
 
+    
+
+            for nombre_seccion, tipos in secciones.items():
+
+                elementos.append(PageBreak())
 
                 elementos.append(
-                Paragraph(
-                        grafico.get("titulo", tipo),
-                        styles["Heading2"]
+                    Paragraph(
+                        nombre_seccion,
+                        styles["Heading1"]
                     )
                 )
 
-                elementos.append(Spacer(1, 10))
+                elementos.append(Spacer(1, 15))
 
-                labels = grafico.get("labels", [])
+                for tipo in tipos:
 
-                for serie in grafico.get("series", []):
+                    grafico = EstadisticasServicies.getGrafico(tipo)
+
+                    if not grafico:
+                        continue
 
                     elementos.append(
                         Paragraph(
-                            serie.get("nombre", "Serie"),
-                            styles["Heading3"]
+                            grafico.get("titulo", tipo),
+                            styles["Heading2"]
                         )
-                    )
+                    )                 
+                    elementos.append(Spacer(1, 10))
 
-                    values = serie.get("values", [])
+                    labels = grafico.get("labels", [])
 
-                    fig, ax = plt.subplots()
+                    for serie in grafico.get("series", []):
 
-                    ax.bar(labels, values)
+                        elementos.append(
+                            Paragraph(
+                                serie.get("nombre", "serie"),
+                                styles["Heading3"]
+                            )
+                        )
 
-                    ax.set_title(serie.get("nombre", grafico.get("titulo", "")))
-                    ax.set_xlabel("Categorías")
-                    ax.set_ylabel("Valores")
+                        values = serie.get("values", [])
 
-                    img_buffer = BytesIO()
-                    plt.xticks(rotation=45, ha="right")
-                    plt.tight_layout()
-                    plt.savefig(img_buffer, format="png", dpi=150)
-                    plt.close(fig)
+                        fig, ax = plt.subplots()
+                        ax.bar(labels, values)
+                        ax.set_title(
+                            serie.get(
+                                "nombre",
+                                grafico.get("titulo", "")
+                            )
+                        )
+                        fig, ax = plt.subplots(figsize=(12, 6))
 
-                    img_buffer.seek(0)
+                        ax.bar(
+                            [str(x) for x in labels],
+                                values
+                        )
 
-                    elementos.append(Image(img_buffer, width=450, height=250))
+                        fig.tight_layout()
+                        ax.set_xlabel("Categorías")
+                        ax.set_ylabel("Valores")
 
-                    elementos.append(Spacer(1, 15))
+                        img_buffer = BytesIO()
 
-                elementos.append(Spacer(1, 20))
+                        plt.xticks(rotation=45, ha="right")
+                        plt.tight_layout()
+
+                        plt.savefig(
+                            img_buffer,
+                            format="png",
+                            dpi=150
+                        )
+
+                        plt.close(fig)
+
+                        img_buffer.seek(0)
+
+                        elementos.append(
+                            Image(
+                                img_buffer,
+                                width=450,
+                                height=250
+                            )
+                        )
+
+                        elementos.append(
+                            Spacer(1, 20)
+                        )
+
+
+            elementos.append(PageBreak())
+
+            elementos.append(
+                Paragraph(
+                    "Conclusión",
+                    styles["Heading1"]
+                )
+            )
+
+            elementos.append(Spacer(1, 10))
+
+            elementos.append(
+                Paragraph(
+                    """
+                    La información presentada permite analizar
+                    distintos aspectos de la población registrada,
+                    incluyendo variables demográficas, educativas,
+                    económicas y territoriales.
+                    """,
+                    styles["BodyText"]
+                )
+            )
 
             doc.build(elementos)
+
             buffer.seek(0)
 
             return buffer

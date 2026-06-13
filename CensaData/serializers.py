@@ -308,7 +308,8 @@ class EmpleosSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validacionesInidividualesIncercion.validacionesEmpleos.valiExiste(validated_data)
         Empleo = Empleos.objects.create(
-            empleo = validated_data["empleo"]
+            empleo = validated_data["empleo"],
+            estad0  = 1
         )
         return Empleo
     def update(self, instance, validated_data):
@@ -609,7 +610,7 @@ class TiposDePisosSerializer(serializers.ModelSerializer):
         return instance
         
 class TiposDeTechosSerializer(serializers.ModelSerializer):
-    class Meta:
+    class Meta: 
         model = Tiposdetechos
         fields = '__all__'
     def create(self, validated_data):
@@ -638,7 +639,7 @@ class MaterialesDeConstruccionesSerializer(serializers.ModelSerializer):
         material =  Materialesconstrucciones.objects.create(
            materialcontruccion = validated_data["materialcontruccion"],
            estado = 1 
-        )
+        )  
         return material
     def update(self, instance, validated_data):
         instance.materialcontruccion = validated_data["materialcontruccion", instance.materialcontruccion]
