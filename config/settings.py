@@ -10,11 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+load_dotenv(BASE_DIR / ".env")
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -25,7 +28,7 @@ SECRET_KEY = 'django-insecure-s*ip1td@yxx#^fa^&o=g^f+)&jb7lu*pgoxj91l(@fu80#)8h5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -57,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -78,9 +82,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+##Cors settings
 
+INSTALLED_APPS += [
+'corsheaders']  
+
+MIDDLEWARE = [
+'corsheaders.middleware.CorsMiddleware']+MIDDLEWARE
+
+CORS_ALLOWED_ORIGINS = [
+'http://localhost:5173',
+'https://censadata.vercel.app',
+]
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # config/settings.py
 
@@ -88,14 +106,17 @@ DATABASES = {
     'default': {
         'ENGINE': 'mssql',  
         'NAME': 'CensaData',      
-        'HOST': 'host.docker.internal',          
-        'USER':'UsuarioAdministrador',
-        "PASSWORD":'123',   
+        'HOST': os.getenv("HOST_NAME"),        
+        'USER': os.getenv("DB_USER_NAME"),
+        "PASSWORD":os.getenv("DB_PASSWORD"),  
         'PORT': '1433',               
         'OPTIONS': {
-            'driver': 'ODBC Driver 17 for SQL Server', 
+            'driver': 'ODBC Driver 17 for SQL Server',
+            'Encrypt': 'yes',
+            'TrustServerCertificate': 'no',
             'charset':'utf8mb4',
             'use_unicode':True,
+            'conection_timeout': 30,
         },
     }
 }
@@ -173,3 +194,14 @@ SWAGGER_SETTINGS = {
             'description': 'Formato: Bearer <tu_token_jwt>'},
     },
 }
+
+##Swagger sttings
+SWAGGER_USE_COMPAT_RENDERERS = False
+
+## Emails Settings
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT =587
+EMAIL_HOST_USER = 'censadata@gmail.com'
+EMAIL_HOST_PASSWORD ='vlwqdqjqrxcmybej'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

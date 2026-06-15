@@ -5,7 +5,7 @@ from CensaData.models import Relacionesparentescos
 
 def test_relacionesparentescos_save_called():
     r = Relacionesparentescos(
-        parentesco='Padre',
+        relacion='Padre',
         estado=True,
     )
 

@@ -1,0 +1,11 @@
+.venv
+
+__pycache__
+
+DB
+
+.env
+
+/test
+
+pytest.ini

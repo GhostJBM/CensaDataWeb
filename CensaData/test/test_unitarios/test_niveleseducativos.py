@@ -5,7 +5,8 @@ from CensaData.models import Niveleseducativos
 
 def test_niveleseducativos_save_called():
     n = Niveleseducativos(
-        nivel='Primaria',
+        niveleducativo='Primaria',
+        grado= 5,
         estado=True,
     )
 

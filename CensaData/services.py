@@ -1,11 +1,20 @@
 ## Distintos servicios del proyecto
 from django.db import transaction 
-from .serializers import *
+from django.utils import timezone
+from django.contrib.auth.hashers import make_password, check_password
 from .models import *
 from rest_framework import status
 from rest_framework.response import Response
 from datetime import datetime
-import math
+from django.core.mail import send_mail
+import math, secrets
+from .estadisticas.graficos import estadisticas
+from io import BytesIO
+from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, PageBreak, Image)
+from reportlab.lib.styles import getSampleStyleSheet
+import matplotlib 
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 ##Clase de excepciones
 class ExcepcionNegocio(Exception):
@@ -283,11 +292,51 @@ class EncuestaInideService:
             
 ## otras clases
 class validacionesInidividualesIncercion:
+    class validacionesPersonas:
+        def valiExiste(data):
+            try:
+                fecha = validacionesInidividualesIncercion.validacionesPersonas.valiFecha(data["fechadenacimiento"])
+                if Personas.objects.filter(primernombre=data["primernombre"], 
+                                        primerapellido = data["primerapellido"], fechadenacimiento = fecha).exists():
+                    raise ExcepcionNegocio("La persona ya existe")
+            except Exception as e:
+                raise ExcepcionNegocio(e)
+        def edad(fecha):
+            try:
+                fechaNa = datetime.strptime(str(fecha),"%Y-%m-%d")
+                fechaActual = datetime.now()
+            
+                edad = fechaActual.year - fechaNa.year
+            
+                if(fechaActual.month, fechaActual.day)< (fechaNa.month, fechaNa.day):
+                    edad -= 1
+                
+                return int(edad)
+            except:
+                raise ExcepcionNegocio(f"La fecha de nacimiento de {fecha} esta mal")
+        def valiSexo(sexo):
+            sexoV = None
+            try:
+                sexoV = chr(sexo).upper()
+                if sexoV != "F" or sexoV != "M":
+                    raise ExcepcionNegocio("Sexo invalido")
+            except:
+                raise ExcepcionNegocio("El sexo solo puede ser de una letra")
+            return sexoV
+            
+        def valiFecha(fecha):
+            fechaValida = None
+            try:
+                fechaValida = datetime.strptime(str(fecha), "%Y-%m-%d")
+            except ExcepcionNegocio as e:
+                raise e("La fecha es invalida")
+            return fechaValida
     class validacionesBarrios:
         def valiExiste(data): 
             try:
-               if Barrios.objects.filter(nombre=data["nombre"], municipioid_id=data["municipioid"]).exists():
-                raise ExcepcionNegocio("El Barrio Ya existe")
+                if Barrios.objects.filter(nombre=data["nombre"], municipioid_id=data["municipioid"]).exists():
+                    raise ExcepcionNegocio("El Barrio Ya existe")
+                return True
             except Exception as e:
                 raise ExcepcionNegocio(e)
     class validacionesDepartamentos:
@@ -415,10 +464,366 @@ class validacionesInidividualesIncercion:
                 return admin
             except:
                 raise ExcepcionNegocio("El administrador no existe")
+        def contantoExistente(data):
+            try:
+                contacto = Contactosinvestigadores.objects.filter(contacto = data["contacto"], investigadorid_id = data["investigadorid"]).exists()
+                if contacto:
+                    raise ExcepcionNegocio("El contacto ya existe para este investigador")
+            except Exception as e:
+                raise ExcepcionNegocio(e)
+    class validacionesIndividualesEmpadronados:
+        def valiExisteContato(data):
+            try:
+                contacto = Contactosempadronados.objects.filter(contacto = data["contacto"], empadronadoid_id = data["empadronadoid"]).exists()
+                if contacto:
+                    raise ExcepcionNegocio("El contacto ya existe para este empadronado")
+            except Exception as e:
+                raise ExcepcionNegocio(e)
+    class validacionesInfraestructura:
+        class materialesContruccion:
+            def existe(data):
+                try:
+                    if Materialesconstrucciones.objects.filter(materialcontruccion = data["materialcontruccion"]):
+                        raise ExcepcionNegocio("El material ya existe")
+                except ValueError as e:
+                    raise ExcepcionNegocio(e)
+        class tipodepiso:
+            def existe(data):
+                try:
+                    if Tiposdepisos.objects.filter(tipopiso=data["tipopiso"]):
+                        raise ExcepcionNegocio("el piso ya existe")
+                except ValueError as e:
+                    raise ExcepcionNegocio(e)
+        class tipodetecho:
+            def existe(data):
+                try:
+                    if Tiposdetechos.objects.filter(tipodetecho=data["tipodetecho"]):
+                        raise ExcepcionNegocio("el techo ya existe")
+                except ValueError as e:
+                    raise ExcepcionNegocio(e)
+    class ValidacionesDiscapacidadesPersona:
+        def DiscPersonExiste(data):
+            try:
+                if Discapacidadespersonas.objects.filter(discapacidadid=data["discapacidadid"], personaid=data["discapacidadid"]):
+                    raise ExcepcionNegocio("Ya existe")
+            except ValueError as e:
+                raise ExcepcionNegocio(e)
+
+class EstadisticasServicies:
+    GRF = {
+        "estadisticas por ingreso":estadisticas.estadisticasPorIngreso,
+        "estadisticas por nivel educativo":estadisticas.estadisticasPorNivelEducativo,
+        "estadisticas por empleo":estadisticas.estadisticasPorEmpleo,
+        "estadisticas por estado civil":estadisticas.estadisticasPorEstadoCivil,
+        "estadisticas por edades":estadisticas.estadisticasPorEdades,
+        "estadisticas por Ingresos basados en el nivel educativo":estadisticas.estadisticasIngresosNivelEducativo,
+        "estadisticas desempleados general":estadisticas.estadisticasDesempleados,
+        "estadisticas desempleadas mujeres por edad":estadisticas.estadisticaDesempleadosMujeresEdad,
+        "estadisticas empleadas mujeres por edad":estadisticas.estadisticasEmpleadosMujeresEdad,
+        "estadisticas desempleados hombres por edad":estadisticas.estadisticasDesempleadosHombresEdad,
+        "estadisticas empleados hombres por edad":estadisticas.estadisticasEmpleadosHombresEdad,
+        "estadisticas ingresos de personas por barrios":estadisticas.estadisticasPersonasIngresosBarrios
+    }
+    def getGrafico(tipo, GRF = GRF):
+        funcion = GRF.get(tipo)
+        
+        if funcion is None:
+            return ExcepcionNegocio("grafico invalido")
+        return funcion()
+
+class ReportesService:
+    def existe(data, user):
+        if Reportes.objects.filter(tiporeporte=data["tiporeporte"], administradorid=user):
+            return ExcepcionNegocio("El reporte ya existe")
+        return True
+    def createReporte(user, data):
+        ReportesService.existe(data, user)
+        Reportes.objects.create(
+            tiporeporte = data["tiporeporte"],
+            espublico = 0,
+            estado = 1,
+            administradorid = user
+        )
+    class generarPDF:
+        @staticmethod
+        def generarReporteCompleto():
+
+            buffer = BytesIO()
+            doc = SimpleDocTemplate(buffer)
+
+            styles = getSampleStyleSheet()
+            elementos = []
 
 
-class GetElement:
-    pass
 
-class GetAllElement:
-    pass
+            elementos.append(
+                Paragraph(
+                    "CENSADATA",
+                    styles["Title"]
+                )
+            )
+
+            elementos.append(Spacer(1, 20))
+
+            elementos.append(
+                Paragraph(
+                    "Reporte Estadístico General",
+                    styles["Heading1"]
+                )
+            )
+
+            elementos.append(Spacer(1, 30))
+
+            elementos.append(
+                Paragraph(
+                """
+                    Este documento contiene información estadística
+                    obtenida a partir de los registros almacenados
+                    en la plataforma Censadata.
+                    """,
+                    styles["BodyText"]
+                    )
+            )
+
+            elementos.append(PageBreak())
+
+
+            elementos.append(
+                Paragraph(
+                    "Resumen Ejecutivo",
+                    styles["Heading1"]
+                )
+            )
+
+            elementos.append(Spacer(1, 10))
+
+            elementos.append(
+                    Paragraph(
+                        """
+                        El presente reporte agrupa indicadores
+                        demográficos, educativos, económicos y
+                        geográficos de la población registrada.
+                        """,
+                        styles["BodyText"]
+                    )
+            )
+
+            elementos.append(Spacer(1, 20))
+
+            secciones = {
+                "Demografía": [
+                    "estadisticas por edades",
+                    "estadisticas por estado civil"
+                ],
+
+                "Educación": [
+                    "estadisticas por nivel educativo"
+                ],
+
+                "Economía": [
+                    "estadisticas por ingreso",
+                    "estadisticas por empleo",
+                    "estadisticas por Ingresos basados en el nivel educativo",
+                    "estadisticas desemplados general",
+                    "estadisticas desempleadas mujeres por edad",
+                    "estadisticas empladas mujueres por edad",
+                    "estadisticas desempleados hombres por edad",
+                    "estadisticas empleados hombres por edad"
+                ],
+
+                "Distribución Geográfica": [
+                    "estadisticas ingresos de personas por barrios"
+                ]
+            }
+
+    
+
+            for nombre_seccion, tipos in secciones.items():
+
+                elementos.append(PageBreak())
+
+                elementos.append(
+                    Paragraph(
+                        nombre_seccion,
+                        styles["Heading1"]
+                    )
+                )
+
+                elementos.append(Spacer(1, 15))
+
+                for tipo in tipos:
+
+                    grafico = EstadisticasServicies.getGrafico(tipo)
+
+                    if not grafico:
+                        continue
+
+                    elementos.append(
+                        Paragraph(
+                            grafico.get("titulo", tipo),
+                            styles["Heading2"]
+                        )
+                    )                 
+                    elementos.append(Spacer(1, 10))
+
+                    labels = grafico.get("labels", [])
+
+                    for serie in grafico.get("series", []):
+
+                        elementos.append(
+                            Paragraph(
+                                serie.get("nombre", "serie"),
+                                styles["Heading3"]
+                            )
+                        )
+
+                        values = serie.get("values", [])
+
+                        fig, ax = plt.subplots()
+                        ax.bar(labels, values)
+                        ax.set_title(
+                            serie.get(
+                                "nombre",
+                                grafico.get("titulo", "")
+                            )
+                        )
+                        fig, ax = plt.subplots(figsize=(12, 6))
+
+                        ax.bar(
+                            [str(x) for x in labels],
+                                values
+                        )
+
+                        fig.tight_layout()
+                        ax.set_xlabel("Categorías")
+                        ax.set_ylabel("Valores")
+
+                        img_buffer = BytesIO()
+
+                        plt.xticks(rotation=45, ha="right")
+                        plt.tight_layout()
+
+                        plt.savefig(
+                            img_buffer,
+                            format="png",
+                            dpi=150
+                        )
+
+                        plt.close(fig)
+
+                        img_buffer.seek(0)
+
+                        elementos.append(
+                            Image(
+                                img_buffer,
+                                width=450,
+                                height=250
+                            )
+                        )
+
+                        elementos.append(
+                            Spacer(1, 20)
+                        )
+
+
+            elementos.append(PageBreak())
+
+            elementos.append(
+                Paragraph(
+                    "Conclusión",
+                    styles["Heading1"]
+                )
+            )
+
+            elementos.append(Spacer(1, 10))
+
+            elementos.append(
+                Paragraph(
+                    """
+                    La información presentada permite analizar
+                    distintos aspectos de la población registrada,
+                    incluyendo variables demográficas, educativas,
+                    económicas y territoriales.
+                    """,
+                    styles["BodyText"]
+                )
+            )
+
+            doc.build(elementos)
+
+            buffer.seek(0)
+
+            return buffer
+
+class RecoveryPasswordService:
+    @staticmethod
+    def sendEmail(email, code):
+            send_mail(
+            subject="Recuperación de contraseña",
+            message=f"Tu código de recuperacion de 6 digitos es {code}",
+            from_email="censadata@gmail.com",
+            recipient_list=[email],
+            fail_silently=False,
+        )
+    @staticmethod
+    def create_recoveryCode(cuentaid):
+        
+        code = str(secrets.randbelow(900000) + 100000)
+        RecoveryPasswordService.sendEmail(cuentaid.Correo, code)
+        RecoveryPassword.objects.filter(
+            cuentaid = cuentaid,
+            estado = True
+        ).update(estado = False)
+        
+        RecoveryPassword.objects.create(
+            cuentaid = cuentaid,
+            coderecovery = make_password(code),
+            expires = timezone.now() + timezone.timedelta(minutes = 10),
+            estado = True
+        )
+    @staticmethod
+    def verifyCode(cuentaid, code):
+        recovery = RecoveryPassword.objects.filter(
+            cuentaid = cuentaid,
+            estado = True
+        ).first()
+        
+        if not recovery:
+            raise ExcepcionNegocio("No existe una solicitud de recuperación activa para esta cuenta")
+        
+        if recovery.expires < timezone.now():
+            raise ExcepcionNegocio("la solicitud de recuperación ha expirado")
+        
+        if not check_password(code,
+                            recovery.coderecovery):
+            raise ExcepcionNegocio("No se ha ingresado el código correcto")
+        
+        Token = secrets.token_urlsafe(32)
+        
+        recovery.tokenrecovery = Token
+        recovery.estado = False
+        recovery.save()
+        return Token
+        
+    @staticmethod    
+    def changePassword(token, new_password):
+        
+        recovery = RecoveryPassword.objects.filter(
+            tokenrecovery = token
+        ).first()
+        
+        if not recovery:
+            return False
+        
+        User = Cuentasinvestigadoresadmin.objects.get(
+            id=recovery.cuentaid.id
+        )
+        
+        User.set_password(new_password)
+        User.save()
+        
+        recovery.delete()
+        
+        return True 
+    
+    

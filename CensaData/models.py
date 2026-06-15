@@ -217,7 +217,7 @@ class Cuentasinvestigadoresadmin(AbstractBaseUser, PermissionsMixin):
         db_table = 'CuentasInvestigadoresAdmin'
     def __str__(self):
         return self.usuario
-
+    
 class Departamentos(models.Model):
     id = models.AutoField(db_column='Id', primary_key=True)  # Field name made lowercase.
     nombre = models.CharField(db_column='Nombre', max_length=30, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
@@ -519,3 +519,14 @@ class Tutores(models.Model):
         managed = False
         db_table = 'Tutores'
         
+class RecoveryPassword(models.Model):
+    id = models.AutoField(db_column='Id', primary_key=True)  # Field name made lowercase.
+    cuentaid = models.ForeignKey(Cuentasinvestigadoresadmin, models.DO_NOTHING, db_column="CuentaId")
+    coderecovery = models.CharField(max_length=255, db_column="CodeRecovery", db_collation='SQL_Latin1_General_CP1_CI_AS')
+    tokenrecovery = models.CharField(max_length=255, db_column="TokenRecovery", null=True, db_collation="SQL_Latin1_General_CP1_CI_AS")
+    expires = models.DateTimeField(db_column="Expires", null=True)
+    estado = models.BooleanField(blank=True,default=True, db_column="Estado")
+    
+    class Meta:
+        managed = False
+        db_table = "RecoveryPassword"
