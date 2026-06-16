@@ -41,7 +41,6 @@ Aplicacion web como proyecto integrador de estudiantes de segundo año de Ingeni
       pip install cryptography==46.0.3
       pip install decorator==5.2.1
       pip install Deprecated==1.3.1
-      pip install Django==5.2.7
       pip install djangorestframework==3.16.1
       pip install djangorestframework_simplejwt==5.5.1
       pip install drf-yasg==1.21.11
