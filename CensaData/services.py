@@ -544,7 +544,15 @@ class ReportesService:
             estado = 1,
             administradorid = user
         )
+    class ispublic:
+        @staticmethod
+        def ReporteAPublic(data):
+            upda = Reportes.objects.filter(id=data.id).first()
+            upda.espublico = 1
+            upda.save()
+            return upda
     class generarPDF:
+
         @staticmethod
         def generarReporteCompleto():
 
@@ -624,9 +632,9 @@ class ReportesService:
                     "estadisticas por ingreso",
                     "estadisticas por empleo",
                     "estadisticas por Ingresos basados en el nivel educativo",
-                    "estadisticas desemplados general",
+                    "estadisticas desempleados general",
                     "estadisticas desempleadas mujeres por edad",
-                    "estadisticas empladas mujueres por edad",
+                    "estadisticas empleadas mujeres por edad",
                     "estadisticas desempleados hombres por edad",
                     "estadisticas empleados hombres por edad"
                 ],
@@ -653,7 +661,7 @@ class ReportesService:
 
                 for tipo in tipos:
 
-                    grafico = EstadisticasServicies.getGrafico(tipo)
+                    grafico = EstadisticasServicies.getGrafico(tipo=tipo)
 
                     if not grafico:
                         continue

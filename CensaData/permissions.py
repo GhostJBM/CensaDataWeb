@@ -24,4 +24,12 @@ class IsAdmin(BasePermission):
             return False
         return True
         
+class IsVisitante(BasePermission):
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        rol = Cuentasinvestigadoresadmin.objects.filter(id=request.user.id).first()
         
+        if rol.Role != "VISITANTE":
+            return False
+        return request.method == "GET"
