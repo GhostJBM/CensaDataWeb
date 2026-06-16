@@ -29,12 +29,46 @@ Aplicacion web como proyecto integrador de estudiantes de segundo año de Ingeni
    4. Instalar las librerías necesarias.
 
      pip install django==5.2.7
-     pip install django-mssql-backend==2.8.1
-     pip install djangorestframework==3.16.1
-     pip install djangorestframework-simplejwt==5.5.1
-     pip install drf-yasg==1.21.11
-     pip install pyodbc==5.3.0
-     pip install mssql-django==1.6
+      pip install gunicorn==26.0.0
+      pip install django-cors-headers==4.9.0
+      pip install whitenoise==6.12.0
+      pip install pandas==3.0.3
+      pip install reportlab==4.5.1
+      pip install aws==0.2.5
+      pip install bcrypt==5.0.0
+      pip install boto==2.49.0
+      pip install cffi==2.0.0
+      pip install cryptography==46.0.3
+      pip install decorator==5.2.1
+      pip install Deprecated==1.3.1
+      pip install Django==5.2.7
+      pip install djangorestframework==3.16.1
+      pip install djangorestframework_simplejwt==5.5.1
+      pip install drf-yasg==1.21.11
+      pip install fabric==3.2.2
+      pip install inflection==0.5.1
+      pip install invoke==2.2.1
+      pip install mssql-django==1.6
+      pip install packaging==25.0
+      pip install paramiko==4.0.0
+      pip install prettytable==3.17.0
+      pip install pycparser==2.23
+      pip install pydantic==2.13.3
+      pip install pydantic_core==2.46.3
+      pip install PyJWT==2.10.1
+      pip install PyNaCl==1.6.1
+      pip install pyodbc==5.3.0
+      pip install pytz==2025.2
+      pip install PyYAML==6.0.3
+      pip install sqlparse==0.5.3
+      pip install typing-inspection==0.4.2
+      pip install typing_extensions==4.15.0
+      pip install tzdata==2025.2
+      pip install uritemplate==4.2.0
+      pip install wcwidth==0.2.14
+      pip install wrapt==2.0.1
+      pip install matplotlib==3.10.9
+      pip install python-dotenv==1.2.2
    
    5. Configurar la conexión con la base de datos en el config del framework.
       - 5.1 Ejecutamos el archivo loginMaster.sql en DB/Seguridad/Logins
