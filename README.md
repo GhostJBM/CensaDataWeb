@@ -5,7 +5,7 @@ Aplicacion web como proyecto integrador de estudiantes de segundo año de Ingeni
 - Python 3.12.6
 - Django Rest Framework.
 - SQL Server Management Studio (SQL Server).
-- API Dog.
+- SWAGGER/OPENAPI.
 - Visual studio code.
 - Github.
 
@@ -17,7 +17,7 @@ Aplicacion web como proyecto integrador de estudiantes de segundo año de Ingeni
    - pip / virtual enviroment (.venv).
 ### Setup.
    1. Clonar el repositorio github.
-   2. Correr el script DML Y DDL de la base de datos alojado en [Base de datos](https://github.com/GhostJBM/CensaDataWeb/tree/main/DB).
+   2. restaurar la bd alojado en [Base de datos](https://github.com/GhostJBM/CensaDataWeb/tree/main/DB).
    3. Generar el virtual enviroment (.venv) si no está generado.
     ``
       python -m venv .venv
@@ -42,22 +42,27 @@ Aplicacion web como proyecto integrador de estudiantes de segundo año de Ingeni
       - 5.3 Ejecutamos el archivo Usuarios.sql en DB/Seguridad/logins
       - 5.4 Ejectuamos todos los archivos en DB/Triggers y procedimientos almacenados 
       - 5.5 Nos conectamos al servidor de BD con el UsuarioAdministrador en caso de querer acceso total o con el UsuarioInvestigador en caso de querer acceso limitado
-      - 5.6 Cambiamos la contraseña del usuario como se nos indica en el Managaments Studio
+      - 5.6 Cambiamos la contraseña del usuario en caso de que lo requeramos y en las .env cambios las credenciales viejas por las nuevas.
       - 5.7 Cambios el usuario y la contraseña en CensaData/config/settings.py
 ```plaintext
        DATABASES = {
             'default': {
-               'ENGINE': 'mssql',  
-               'NAME': 'CensaData',      
-               'HOST': 'localhost\\SQLEXPRESS',  #coloque su servidor de db        
-               'USER':'UsuarioAdministrador',    #UsuarioAdministrador o UsuarioInvestigador
-               "PASSWORD":'Login',               #Contraseña cambiada previamente
-               'PORT': '',               
-               'OPTIONS': {
-                  'driver': 'ODBC Driver 17 for SQL Server', # driver de sql server
-               },
-            }
-      }
+        'ENGINE': 'mssql',  
+        'NAME': 'CensaData',      
+        'HOST': os.getenv("HOST_NAME"),        
+        'USER': os.getenv("DB_USER_NAME"),
+        "PASSWORD":os.getenv("DB_PASSWORD"),  
+        'PORT': '1433',               
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server',
+            'Encrypt': 'yes',
+            'TrustServerCertificate': 'no',
+            'charset':'utf8mb4',
+            'use_unicode':True,
+            'conection_timeout': 30,
+      },
+   }
+}
 
       6.1 Crear las migraciones a la bd
       python manage.py migrate
@@ -77,12 +82,17 @@ Aplicacion web como proyecto integrador de estudiantes de segundo año de Ingeni
 ```plaintext
 CensaDataWeb/
 ├── .venv/                 
-├── CensaData/                 
+├── CensaData/
+│   ├── estadisticas/       #Estadisticas simulando el DW
+│   ├      ├── Datast_censadata.csv
+│   ├      ├── Ceensadataset.ipynb
+│   ├      └── graficos.py               
 │   ├── migrations/         # Migraciones de la base de datos
 │   ├── __init__.py
 │   ├── admin.py
 │   ├── apps.py
-│   ├── models.py           # Modelos de datos
+│   ├── models.py  # Modelos de datos
+|   ├── services.py # services layer/ logica y validaciones       
 │   ├── permissions.py 
 │   ├── serializers.py      # Serializadores para DRF
 │   ├── test.py
