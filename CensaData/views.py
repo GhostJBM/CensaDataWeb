@@ -1693,7 +1693,7 @@ class EstadisticasINIDEView(APIView):
         
     permission_classes = [IsAdmin]
 class ReportesINIDEView(APIView):
-    def get(self):
+    def get(self, request):
         data = Reportes.objects.filter(estado=1).all()
         return Response({
             "data":data.all().values("id", "tiporeporte","espublico", "administradorid")

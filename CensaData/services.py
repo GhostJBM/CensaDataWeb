@@ -10,11 +10,18 @@ from django.core.mail import send_mail
 import math, secrets
 from .estadisticas.graficos import estadisticas
 from io import BytesIO
-from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, PageBreak, Image)
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, PageBreak, Image, HRFlowable)
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.units import cm
 import matplotlib 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import time
+from django.core.cache import cache
+import hashlib
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 ##Clase de excepciones
 class ExcepcionNegocio(Exception):
@@ -510,6 +517,8 @@ class validacionesInidividualesIncercion:
                 raise ExcepcionNegocio(e)
 
 class EstadisticasServicies:
+    CACHE_TIMEOUT = 600  # 10 minutos
+    
     GRF = {
         "estadisticas por ingreso":estadisticas.estadisticasPorIngreso,
         "estadisticas por nivel educativo":estadisticas.estadisticasPorNivelEducativo,
@@ -524,12 +533,116 @@ class EstadisticasServicies:
         "estadisticas empleados hombres por edad":estadisticas.estadisticasEmpleadosHombresEdad,
         "estadisticas ingresos de personas por barrios":estadisticas.estadisticasPersonasIngresosBarrios
     }
-    def getGrafico(tipo, GRF = GRF):
+    
+    @staticmethod
+    def _sanitizar_cache_key(tipo):
+        """Sanitiza la clave de caché reemplazando espacios por guiones bajos."""
+        return f"grafico_{tipo.replace(' ', '_')}"
+    
+    @staticmethod
+    def getGrafico(tipo, GRF=GRF):
+        """
+        Obtiene un gráfico con caché de 10 minutos.
+        Evita regenerar datos si ya están en caché.
+        """
+        cache_key = EstadisticasServicies._sanitizar_cache_key(tipo)
+        cached = cache.get(cache_key)
+        if cached:
+            return cached
+            
         funcion = GRF.get(tipo)
-        
         if funcion is None:
-            return ExcepcionNegocio("grafico invalido")
-        return funcion()
+            raise ExcepcionNegocio("grafico invalido")
+        
+        resultado = funcion()
+        cache.set(cache_key, resultado, EstadisticasServicies.CACHE_TIMEOUT)
+        return resultado
+    
+    @staticmethod
+    def getGraficosMultiples(tipos, max_workers=4, GRF=GRF):
+        """
+        Obtiene múltiples gráficos en paralelo usando ThreadPoolExecutor.
+        Reduce significativamente el tiempo de carga cuando se necesitan varios gráficos.
+        
+        Args:
+            tipos: Lista de tipos de gráficos a obtener
+            max_workers: Número máximo de workers (threads) paralelos
+        
+        Returns:
+            Dict con tipo como clave y gráfico como valor
+        """
+        graficos_dict = {}
+        
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            # Crear futures para todos los gráficos
+            futures = {
+                executor.submit(EstadisticasServicies.getGrafico, tipo): tipo 
+                for tipo in tipos
+            }
+            
+            # Recopilar resultados conforme se completan
+            for future in as_completed(futures):
+                tipo = futures[future]
+                try:
+                    graficos_dict[tipo] = future.result()
+                except Exception as e:
+                    graficos_dict[tipo] = None
+        
+        return graficos_dict
+    
+    @staticmethod
+    def limpiarCache(tipo=None):
+        """
+        Limpia el caché de gráficos.
+        Si tipo es None, limpia todos los gráficos.
+        """
+        if tipo is None:
+            # Limpiar todos los gráficos
+            for tipo_grafico in EstadisticasServicies.GRF.keys():
+                cache_key = EstadisticasServicies._sanitizar_cache_key(tipo_grafico)
+                cache.delete(cache_key)
+        else:
+            cache_key = EstadisticasServicies._sanitizar_cache_key(tipo)
+            cache.delete(cache_key)
+    
+    @staticmethod
+    def _generar_imagen_cached(labels, values, nombre_serie):
+        """
+        Genera y cachea una imagen PNG de un gráfico de barras.
+        Reutiliza imágenes en caché si existen.
+        """
+        import hashlib
+        
+        # Crear una clave única basada en los datos
+        datos_str = f"{nombre_serie}_{'_'.join(str(l) for l in labels)}_{'_'.join(str(v) for v in values)}"
+        cache_key = f"grafico_img_{hashlib.md5(datos_str.encode()).hexdigest()}"
+        
+        # Intentar obtener del caché
+        img_cached = cache.get(cache_key)
+        if img_cached:
+            img_cached.seek(0)
+            return img_cached
+        
+        # Generar nueva imagen
+        fig, ax = plt.subplots(figsize=(10, 5))  # Reducido de (12, 6)
+        
+        ax.bar([str(x) for x in labels], values)
+        
+        ax.set_xlabel("Categorías")
+        ax.set_ylabel("Valores")
+        plt.xticks(rotation=45, ha="right")
+        fig.tight_layout()
+        
+        img_buffer = BytesIO()
+        plt.savefig(img_buffer, format="png", dpi=100, bbox_inches='tight')  # Reducido de dpi=150
+        plt.close(fig)
+        
+        img_buffer.seek(0)
+        
+        # Guardar en caché por 1 hora
+        cache.set(cache_key, img_buffer, 3600)
+        
+        return img_buffer
 
 class ReportesService:
     def existe(data, user):
@@ -555,11 +668,93 @@ class ReportesService:
 
         @staticmethod
         def generarReporteCompleto():
-
+            t0 = time.perf_counter()
             buffer = BytesIO()
-            doc = SimpleDocTemplate(buffer)
+            doc = SimpleDocTemplate(
+                buffer,
+                pagesize=letter,
+                leftMargin=2*cm,
+                rightMargin=2*cm,
+                topMargin=3*cm,
+                bottomMargin=2.5*cm
+            )
+
+            def header_footer(canvas, doc):
+                canvas.saveState()
+                width, height = letter
+                canvas.setFont("Helvetica-Bold", 9)
+                canvas.setFillColor(colors.HexColor("#2F4B7C"))
+                canvas.drawString(doc.leftMargin, height - 1.2*cm, "CENSADATA - Reporte Estadístico General")
+                canvas.setStrokeColor(colors.HexColor("#C8D1E0"))
+                canvas.setLineWidth(0.5)
+                canvas.line(doc.leftMargin, height - 1.3*cm, width - doc.rightMargin, height - 1.3*cm)
+                canvas.setFont("Helvetica", 8)
+                canvas.setFillColor(colors.grey)
+                canvas.drawRightString(width - doc.rightMargin, doc.bottomMargin - 0.8*cm, f"Página {canvas.getPageNumber()}")
+                canvas.restoreState()
 
             styles = getSampleStyleSheet()
+            styles.add(ParagraphStyle(
+                name="TitleLarge",
+                parent=styles["Title"],
+                fontName="Helvetica-Bold",
+                fontSize=26,
+                leading=30,
+                textColor=colors.HexColor("#2F4B7C"),
+                spaceAfter=12
+            ))
+            styles.add(ParagraphStyle(
+                name="SectionHeading",
+                parent=styles["Heading1"],
+                fontName="Helvetica-Bold",
+                fontSize=18,
+                leading=22,
+                textColor=colors.HexColor("#1E3A59"),
+                spaceBefore=12,
+                spaceAfter=10
+            ))
+            styles.add(ParagraphStyle(
+                name="SubHeading",
+                parent=styles["Heading2"],
+                fontName="Helvetica-Bold",
+                fontSize=14,
+                leading=18,
+                textColor=colors.HexColor("#2E4A75"),
+                spaceBefore=10,
+                spaceAfter=8
+            ))
+            styles.add(ParagraphStyle(
+                name="SubHeading2",
+                parent=styles["Heading3"],
+                fontName="Helvetica-Bold",
+                fontSize=12,
+                leading=15,
+                textColor=colors.HexColor("#1B3256"),
+                spaceBefore=8,
+                spaceAfter=6
+            ))
+            styles.add(ParagraphStyle(
+                name="BodyTextCustom",
+                parent=styles["BodyText"],
+                fontName="Helvetica",
+                fontSize=11,
+                leading=16,
+                spaceAfter=10,
+                alignment=4
+            ))
+            styles.add(ParagraphStyle(
+                name="BodySmall",
+                parent=styles["BodyText"],
+                fontName="Helvetica",
+                fontSize=9,
+                leading=12,
+                textColor=colors.grey,
+                spaceAfter=6,
+                alignment=4
+            ))
+            estilos_visuales = {
+                "separator": HRFlowable(width="100%", thickness=0.5, color=colors.HexColor("#C8D1E0"), spaceBefore=10, spaceAfter=10)
+            }
             elementos = []
 
 
@@ -567,56 +762,54 @@ class ReportesService:
             elementos.append(
                 Paragraph(
                     "CENSADATA",
-                    styles["Title"]
+                    styles["TitleLarge"]
                 )
             )
 
-            elementos.append(Spacer(1, 20))
+            elementos.append(Spacer(1, 12))
 
             elementos.append(
                 Paragraph(
                     "Reporte Estadístico General",
-                    styles["Heading1"]
-                )
-            )
-
-            elementos.append(Spacer(1, 30))
-
-            elementos.append(
-                Paragraph(
-                """
-                    Este documento contiene información estadística
-                    obtenida a partir de los registros almacenados
-                    en la plataforma Censadata.
-                    """,
-                    styles["BodyText"]
-                    )
-            )
-
-            elementos.append(PageBreak())
-
-
-            elementos.append(
-                Paragraph(
-                    "Resumen Ejecutivo",
-                    styles["Heading1"]
+                    styles["SectionHeading"]
                 )
             )
 
             elementos.append(Spacer(1, 10))
 
             elementos.append(
-                    Paragraph(
-                        """
-                        El presente reporte agrupa indicadores
-                        demográficos, educativos, económicos y
-                        geográficos de la población registrada.
-                        """,
-                        styles["BodyText"]
+                Paragraph(
+                """
+                    Informe sintético de Censadata con datos de población,
+                    educación, empleo y distribución territorial.
+                    """,
+                    styles["BodyTextCustom"]
                     )
             )
 
-            elementos.append(Spacer(1, 20))
+            elementos.append(Spacer(1, 14))
+
+            elementos.append(
+                Paragraph(
+                    "Resumen Ejecutivo",
+                    styles["SubHeading"]
+                )
+            )
+
+            elementos.append(Spacer(1, 6))
+
+            elementos.append(
+                    Paragraph(
+                        """
+                        Este reporte presenta indicadores clave de la
+                        población registrada, apoyando el análisis y la
+                        toma de decisiones con información consolidada.
+                        """,
+                        styles["BodyTextCustom"]
+                    )
+            )
+
+            elementos.append(Spacer(1, 14))
 
             secciones = {
                 "Demografía": [
@@ -653,15 +846,20 @@ class ReportesService:
                 elementos.append(
                     Paragraph(
                         nombre_seccion,
-                        styles["Heading1"]
+                        styles["SectionHeading"]
                     )
                 )
 
-                elementos.append(Spacer(1, 15))
-
+                elementos.append(estilos_visuales["separator"])
+                elementos.append(Spacer(1, 12))
+                print("Inicio:", time.perf_counter() - t0)
+                
+                # Obtener todos los gráficos de esta sección en paralelo
+                graficos_dict = EstadisticasServicies.getGraficosMultiples(tipos)
+                
                 for tipo in tipos:
 
-                    grafico = EstadisticasServicies.getGrafico(tipo=tipo)
+                    grafico = graficos_dict.get(tipo)
 
                     if not grafico:
                         continue
@@ -669,10 +867,19 @@ class ReportesService:
                     elementos.append(
                         Paragraph(
                             grafico.get("titulo", tipo),
-                            styles["Heading2"]
+                            styles["SubHeading"]
                         )
                     )                 
-                    elementos.append(Spacer(1, 10))
+
+                    descripcion_grafico = grafico.get("descripcion")
+                    if descripcion_grafico:
+                        elementos.append(
+                            Paragraph(
+                                descripcion_grafico,
+                                styles["BodyTextCustom"]
+                            )
+                        )
+                        elementos.append(Spacer(1, 10))
 
                     labels = grafico.get("labels", [])
 
@@ -681,45 +888,12 @@ class ReportesService:
                         elementos.append(
                             Paragraph(
                                 serie.get("nombre", "serie"),
-                                styles["Heading3"]
+                                styles["SubHeading2"]
                             )
                         )
 
                         values = serie.get("values", [])
-
-                        fig, ax = plt.subplots()
-                        ax.bar(labels, values)
-                        ax.set_title(
-                            serie.get(
-                                "nombre",
-                                grafico.get("titulo", "")
-                            )
-                        )
-                        fig, ax = plt.subplots(figsize=(12, 6))
-
-                        ax.bar(
-                            [str(x) for x in labels],
-                                values
-                        )
-
-                        fig.tight_layout()
-                        ax.set_xlabel("Categorías")
-                        ax.set_ylabel("Valores")
-
-                        img_buffer = BytesIO()
-
-                        plt.xticks(rotation=45, ha="right")
-                        plt.tight_layout()
-
-                        plt.savefig(
-                            img_buffer,
-                            format="png",
-                            dpi=150
-                        )
-
-                        plt.close(fig)
-
-                        img_buffer.seek(0)
+                        img_buffer = EstadisticasServicies._generar_imagen_cached(labels, values, serie.get("nombre", "serie"))
 
                         elementos.append(
                             Image(
@@ -728,9 +902,9 @@ class ReportesService:
                                 height=250
                             )
                         )
-
+                        elementos.append(estilos_visuales["separator"])
                         elementos.append(
-                            Spacer(1, 20)
+                            Spacer(1, 16)
                         )
 
 
@@ -739,10 +913,11 @@ class ReportesService:
             elementos.append(
                 Paragraph(
                     "Conclusión",
-                    styles["Heading1"]
+                    styles["SectionHeading"]
                 )
             )
 
+            elementos.append(estilos_visuales["separator"])
             elementos.append(Spacer(1, 10))
 
             elementos.append(
@@ -753,12 +928,13 @@ class ReportesService:
                     incluyendo variables demográficas, educativas,
                     económicas y territoriales.
                     """,
-                    styles["BodyText"]
+                    styles["BodyTextCustom"]
                 )
             )
+            print("Graficos:", time.perf_counter() - t0)
 
-            doc.build(elementos)
-
+            doc.build(elementos, onFirstPage=header_footer, onLaterPages=header_footer)
+            print("PDF:", time.perf_counter() - t0)
             buffer.seek(0)
 
             return buffer

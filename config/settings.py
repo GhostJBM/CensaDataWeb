@@ -47,6 +47,10 @@ INSTALLED_APPS = [
     'CensaData',                       
     'rest_framework_simplejwt', 
     'drf_yasg',  
+    
+    'django_prometheus',
+    
+    'silk'
 ]
 
 # Custom User Model
@@ -61,6 +65,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
+    
+    'silk.middleware.SilkyMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
