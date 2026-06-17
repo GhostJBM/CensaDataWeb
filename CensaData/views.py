@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import *
 from .serializers import *
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .permissions import IsAdminOrReadOnly, IsAdmin
+from .permissions import IsAdminOrReadOnly, IsAdmin, IsVisitante
 from .services import *
 from rest_framework.decorators import APIView
 from rest_framework.response import Response
@@ -1693,6 +1693,11 @@ class EstadisticasINIDEView(APIView):
         
     permission_classes = [IsAdmin]
 class ReportesINIDEView(APIView):
+    def get(self, request):
+        data = Reportes.objects.filter(estado=1).all()
+        return Response({
+            "data":data.all().values("id", "tiporeporte","espublico", "administradorid")
+        })
     def post(self, request):
         if not request.data :
             return Response({
@@ -1722,14 +1727,69 @@ class ReportesINIDEView(APIView):
             )
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAdmin]
-
+class ReportesINIDEPublicView(APIView):
+    def put(self, request):
+        data = None
+        try:
+            data = request.data["tiporeporte"]
+        except:
+            return Response({
+                "error":"No existe tiporeporte"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        obj = Reportes.objects.filter(tiporeporte=data).first()
+        if obj is None:
+            return Response({"error":"el tipo de reporte no es valido"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            val = ReportesService.ispublic.ReporteAPublic(obj)
+            
+            return Response({
+                "data":{
+                    "id":val.id,
+                    "tiporeporte":val.tiporeporte,
+                    "espublico":val.espublico,
+                    "administradorid":val.administradorid.id
+                }
+            }, status=status.HTTP_200_OK)
+        except ValueError as e:
+            raise ExcepcionNegocio(e)
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAdmin]
+class ReportesPublicosView(APIView):
+    def get(self, request):
+        tipo = request.query_params.get("tiporeporte")
+        report = Reportes.objects.filter(estado = 1, tiporeporte=tipo, espublico=1).first()
+        try:
+            if report.tiporeporte is None:
+                raise ExcepcionNegocio("No existe")
+            pdf = ReportesService.generarPDF.generarReporteCompleto()
+            
+            return FileResponse(
+                pdf,
+                as_attachment=True,
+                filename="ReporteGeneralCensadata.pdf"
+                )
+        except ValueError as e:
+            raise Response({
+            "error":e
+        })
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsVisitante]
+class reportePublicVisitanteView(APIView):
+    def get(self, request):
+        data = Reportes.objects.filter(estado=1, espublico=1).all()
+        return Response({
+            "data":data.all().values("id", "tiporeporte","espublico")
+        })
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsVisitante]
 class ReportesPDFview(APIView):
     def get(self, request):
         tipo = request.query_params.get("tiporeporte")
         
         report = Reportes.objects.filter(estado = 1, tiporeporte=tipo).first()
         try:
-            if report.tiporeporte != "Completo":
+            if report.tiporeporte is None:
                 raise ExcepcionNegocio("No existe")
             pdf = ReportesService.generarPDF.generarReporteCompleto()
             

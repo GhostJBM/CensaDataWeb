@@ -11,6 +11,7 @@ class estadisticas:
         data = {
             "TipodeGrafico":"bar",
             "titulo":"Ingreso Personal",
+            "descripcion":"Este gráfico muestra la distribución de los ingresos personales declarados por los encuestados, permitiendo identificar tramos de ingreso más frecuentes en la población censada.",
             "labels":conteo.index.tolist(),
             "series":[
                 {
@@ -25,6 +26,7 @@ class estadisticas:
         data = {
             "TipodeGrafico":"bar",
             "titulo":"Niveles educativos",
+            "descripcion":"Este gráfico presenta la proporción de personas según el nivel educativo alcanzado, facilitando la comprensión del perfil formativo de la población registrada.",
             "labels":conteo.index.tolist(),
             "series":[{
                 "nombre":"Cantidad",
@@ -37,6 +39,7 @@ class estadisticas:
         data = {
             "TipodeGrafico":"bar",
             "titulo":"Empleos",
+            "descripcion":"Este gráfico resume la situación ocupacional de la población, mostrando las categorías de empleo más representativas dentro del censo.",
             "labels":conteo.index.tolist(),
             "series":[
                 {
@@ -51,6 +54,7 @@ class estadisticas:
         data = {
             "TipodeGrafico":"bar",
             "titulo":"Estados civiles",
+            "descripcion":"Este gráfico muestra la distribución de los estados civiles de la población encuestada, lo que ayuda a entender la composición social del conjunto de datos.",
             "labels":conteo.index.tolist(),
             "series":[{
                 "nombre":"Cantidad",
@@ -60,7 +64,7 @@ class estadisticas:
         return data
     def estadisticasPorEdades(df=df):
         bins = [0 ,13, 18, 60, 100]
-        labels = ['Niño', 'Joven', 'Adulto', 'Adulto Mayor']
+        labels = ['Niño: 0 a 12', 'Joven: 13 a 17', 'Adulto: 18 a 59', 'Adulto Mayor: 60 en adelante']
         
         
         df['grupos_edad'] = pd.cut(
@@ -78,7 +82,8 @@ class estadisticas:
         
         data = {
             "tipo":"bar",
-            "titulo":"Estadisticas por edad",
+            "titulo":"Estadísticas por edad",
+            "descripcion":"Este gráfico agrupa a la población por rangos de edad, permitiendo observar la estructura etaria predominante en la muestra.",
             "labels":conteo_edades.grupos_edad.tolist(),
             "series":[{
                 "nombre":"Cantidad",
@@ -92,6 +97,7 @@ class estadisticas:
         data={
             "tipo":"bar",
             "titulo":"Cantidad de personas con ingresos por nivel educativo",
+            "descripcion":"Este gráfico presenta la cantidad de personas con ingreso registrado por nivel educativo, lo que permite identificar la relación entre educación e inserción laboral.",
             "labels":ingresos_totales.NivelEducativo.tolist(),
             "series":[{
                 "nombre":"Cantidad",
@@ -101,7 +107,7 @@ class estadisticas:
         return data
     def estadisticasDesempleados(df=df):
         bins = [ 18, 35, 60]
-        labels = [ 'Joven', 'Adulto']
+        labels = [ 'Adulto Joven de 18 a 34', 'Adulto de 35 a 60']
 
         df['grupos_trabajo'] = pd.cut(
             df['Edad'],
@@ -121,7 +127,8 @@ class estadisticas:
         )
         data = {
             "tipo":"bar",
-            "titulo":"Grafico de desempleo total",
+            "titulo":"Gráfico de desempleo total",
+            "descripcion":"Este gráfico muestra la cantidad de personas desempleadas por rango de edad, lo que facilita identificar los grupos etarios con mayor incidencia de desempleo.",
             "labels":conteo.grupos_trabajo.tolist(),
             "series":[{
                 "nombre":"Cantidad",
@@ -136,7 +143,7 @@ class estadisticas:
         pass
     def estadisticaDesempleadosMujeresEdad(df=df):
         bins = [0 ,13, 18, 60, 100]
-        labels = ['Niño', 'Joven', 'Adulto', 'Adulto Mayor']
+        labels = ['Niño: 0 a 12', 'Joven: 13 a 17', 'Adulto: 18 a 59', 'Adulto Mayor: 60 en adelante']
         
         
         df['grupos_edad'] = pd.cut(
@@ -154,6 +161,7 @@ class estadisticas:
         data = {
             "tipo":"bar",
             "titulo":"Cantidad de mujeres desempleadas por edad",
+            "descripcion":"Este gráfico muestra la incidencia del desempleo entre mujeres por rango de edad, destacando los grupos con mayor afectación.",
             "labels":labels,
             "series":[{
                 "nombre":"Cantidad",
@@ -163,7 +171,7 @@ class estadisticas:
         return data
     def estadisticasEmpleadosMujeresEdad(df=df):
         bins = [0 ,13, 18, 60, 100]
-        labels = ['Niño', 'Joven', 'Adulto', 'Adulto Mayor']
+        labels = ['Niño: 0 a 12', 'Joven: 13 a 17', 'Adulto: 18 a 59', 'Adulto Mayor: 60 en adelante']
         
         
         df['grupos_edad'] = pd.cut(
@@ -181,7 +189,8 @@ class estadisticas:
         )
         data = {
             "tipo":"bar",
-            "titulo":"Cantidad de mujeres desempleadas por edad",
+            "titulo":"Cantidad de mujeres empleadas por edad",
+            "descripcion":"Este gráfico ilustra la distribución de mujeres empleadas según rango de edad, permitiendo comparar niveles de ocupación femenina en distintos grupos etarios.",
             "labels":labels,
             "series":[{
                 "nombre":"Cantidad",
@@ -191,7 +200,7 @@ class estadisticas:
         return data
     def estadisticasDesempleadosHombresEdad(df=df):
         bins = [0 ,13, 18, 60, 100]
-        labels = ['Niño', 'Joven', 'Adulto', 'Adulto Mayor']
+        labels = ['Niño: 0 a 12', 'Joven: 13 a 17', 'Adulto: 18 a 59', 'Adulto Mayor: 60 en adelante']
         
         
         df['grupos_edad'] = pd.cut(
@@ -210,6 +219,7 @@ class estadisticas:
         data = {
             "Tipo":"bar",
             "titulo":"Hombres desempleados por edad",
+            "descripcion":"Este gráfico examina la incidencia del desempleo entre hombres de diferentes grupos de edad, destacando aquellos tramos etarios donde se concentra la mayor proporción de personas sin empleo.",
             "labels":labels,
             "series":[{
                 "nombre":"Cantidad",
@@ -219,7 +229,7 @@ class estadisticas:
         return data
     def estadisticasEmpleadosHombresEdad(df=df):
         bins = [0 ,13, 18, 60, 100]
-        labels = ['Niño', 'Joven', 'Adulto', 'Adulto Mayor']
+        labels = ['Niño: 0 a 12', 'Joven: 13 a 17', 'Adulto: 18 a 59', 'Adulto Mayor: 60 en adelante']
         
         
         df['grupos_edad'] = pd.cut(
@@ -237,7 +247,8 @@ class estadisticas:
         
         data ={
             "tipo":"bar",
-            "titulo":"Hombres emplados por edad",
+            "titulo":"Hombres empleados por edad",
+            "descripcion":"Este gráfico muestra la distribución de hombres empleados por rango de edad, con el fin de identificar los principales grupos etarios que participan en el mercado laboral.",
             "labels":labels,
             "series":[{
                 "nombre":"Cantidad",
@@ -258,6 +269,7 @@ class estadisticas:
         data = {
             "tipo": "bar",
             "titulo": "Cantidad de personas e ingreso promedio por barrio",
+            "descripcion": "Este gráfico combina el número de personas censadas con el ingreso promedio por barrio, lo que ayuda a identificar zonas con mayor densidad poblacional y diferencias económicas entre sectores geográficos.",
             "labels": df_barrios["barrio"].tolist(),
             "series": [
                 {

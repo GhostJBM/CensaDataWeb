@@ -61,5 +61,8 @@ urlpatterns = [
     ## reportes y estadisticas
     path('estadisticas/', EstadisticasINIDEView.as_view()),
     path("reportes/pdf/", ReportesPDFview.as_view()),
-    path("reportes/", ReportesINIDEView.as_view())
+    path("reportes/", ReportesINIDEView.as_view()),
+    path("reportes/IsPublic/",ReportesINIDEPublicView.as_view()),
+    path("reportes/publicos/pdf/", ReportesPublicosView.as_view()),
+    path("reportes/publicos/", reportePublicVisitanteView.as_view())
 ]

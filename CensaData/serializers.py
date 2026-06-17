@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from .models import Añosescolares, Añosescolaresdocentes, Administradores, Barrios,Casas,Centroseducativos,Centroseducativosdocentes,Contactoscentroseducativos,Contactosdirectores,Contactosdocentes,Contactosinvestigadores,Contactostutores,Cuentasinvestigadoresadmin,CustomInvestigadorAdminManager, Departamentos,Directores,Docentes,Docentesestudiantes,Empadronados,Empleos,Censos,Encuestasinidetrabajadores,Encuestasminedescolares,Estadosciviles,Estudiantes,Investigadores,Municipios,Personas,Relacionesparentescos,Tiposdeeducaciones,Tiposdeeducacionesdocentes,Tutores
-from .services import *
+from .models import *
+from CensaData.services import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.exceptions import AuthenticationFailed
 from django.db.models import Q
@@ -156,10 +156,10 @@ class ContactosinvestigadoresSerializer(serializers.ModelSerializer):
         return instance
 class ContactosEmpadronadosSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Contactosempadronados
+        model = Contactosempadronados 
         fields = '__all__'
 
-    def create(self, validated_data):
+    def create(self, validated_data): 
         validacionesInidividualesIncercion.validacionesIndividualesEmpadronados.valiExisteContato(validated_data)
         contacto = Contactosempadronados.objects.create(
             contacto = validated_data["contacto"],

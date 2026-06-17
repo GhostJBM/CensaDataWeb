@@ -47,6 +47,10 @@ INSTALLED_APPS = [
     'CensaData',                       
     'rest_framework_simplejwt', 
     'drf_yasg',  
+    
+    'django_prometheus',
+    
+    'silk'
 ]
 
 # Custom User Model
@@ -61,6 +65,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
+    
+    'silk.middleware.SilkyMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -93,6 +102,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
 'http://localhost:5173',
 'https://censadata.vercel.app',
+'https://censadata-inide.netlify.app',
 ]
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -194,6 +204,9 @@ SWAGGER_SETTINGS = {
             'description': 'Formato: Bearer <tu_token_jwt>'},
     },
 }
+
+##Swagger sttings
+SWAGGER_USE_COMPAT_RENDERERS = False
 
 ## Emails Settings
 EMAIL_USE_TLS = True
